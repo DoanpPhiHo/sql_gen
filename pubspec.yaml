@@ -1,0 +1,25 @@
+name: db_sql_generator
+description: A new Flutter package project.
+version: 0.0.1
+publish_to: none
+homepage:
+
+environment:
+  sdk: '>=2.19.4 <3.0.0'
+
+dependencies:
+  analyzer: ">=2.0.0 <6.0.0"
+  build: ^2.0.0
+  source_gen: ^1.0.0
+  meta: ^1.8.0
+  sqflite: ^2.2.6
+  db_sql_annotation:
+    path: packages/db_sql_annotation/
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  equatable: ^2.0.5
+  flutter_lints: ^2.0.1
+  build_runner: ">=1.11.5 <3.0.0"
+flutter:

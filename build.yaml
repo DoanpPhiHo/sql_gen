@@ -1,0 +1,15 @@
+targets:
+  $default:
+    builders:
+      db_sql_generator|db_sql_annotation:
+        enabled: true
+
+builders:
+  db_sql_generator:
+    target: ":db_sql_generator"
+    import: "package:db_sql_generator/db_sql_generator.dart"
+    builder_factories: ["generateSqlBase", "generateSqlExtension"]
+    build_extensions: { ".dart": [".g.dart"] }
+    auto_apply: dependents
+    build_to: cache
+    applies_builders: ["source_gen|combining_builder"]
