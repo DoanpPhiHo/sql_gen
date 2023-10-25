@@ -16,8 +16,8 @@ class IDAuto extends Property {
   const IDAuto();
 }
 
-class Column<T> extends Property {
-  const Column(this.defaultValue);
+class TColumn<T> extends Property {
+  const TColumn(this.defaultValue);
   final T? defaultValue;
 }
 
@@ -32,6 +32,6 @@ class Enumerated<T> extends Property {
 
 const primaryKey = ID();
 const primaryKeyAuto = IDAuto();
-const column = Column(null);
+const column = TColumn(null);
 const index = Index();
 const enumerated = Enumerated(null);

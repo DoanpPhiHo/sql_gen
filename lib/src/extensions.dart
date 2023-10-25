@@ -116,7 +116,7 @@ extension DynamicX on String? {
   }
 }
 
-final _columnChecker = const TypeChecker.fromRuntime(Column);
+final _columnChecker = const TypeChecker.fromRuntime(TColumn);
 final _enumeratedChecker = const TypeChecker.fromRuntime(Enumerated);
 
 final _primaryKeyChecker = const TypeChecker.fromRuntime(ID);

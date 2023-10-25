@@ -10,7 +10,7 @@ abstract class ExampleModel {
     @primaryKey int id, {
     @index required String name,
     @column required String passportId,
-    @Column(10) required int? age,
+    @TColumn(10) required int? age,
     @column int? region,
     @Enumerated(Sex.male) Sex? sex,
   }) = _ExampleModel;
