@@ -1,10 +1,7 @@
-import 'dart:developer';
-
-import 'package:db_sql_annotation/db_sql_annotation.dart';
+import 'package:db_sql_query/db_sql_query.dart';
 import 'package:example/config_sqflite.dart';
-import 'package:sqflite/sql.dart';
 
-class DogCategory {
+class DogCategory extends ITable {
   final int id;
   final String name;
 
@@ -24,96 +21,106 @@ class DogCategory {
       };
 }
 
-class _DogCategoryId extends ITableProperties<DogCategory> {
-  const _DogCategoryId() : super('id');
+class _DogCategoryId extends IColumn<DogCategory> {
+  const _DogCategoryId() : super('id', tableName: 'dog_categories');
 }
 
-class _DogCategoryName extends ITableProperties<DogCategory> {
-  const _DogCategoryName() : super('name');
+class $DogCategoryName extends IColumn<DogCategory> {
+  const $DogCategoryName() : super('name', tableName: 'dog_categories');
 }
 
 const dogCategoryId = _DogCategoryId();
-const dogCategoryName = _DogCategoryName();
+const dogCategoryName = $DogCategoryName();
 
 extension DogCategoryQuery on DogCategory {
-  static String get rawCreate => '''CREATE TABLE IF NOT EXISTS dog_categories(
-          id INTEGER PRIMARY KEY autoincrement,
-          name TEXT NOT NULL
-        )''';
+  static String get name => 'dog_categories';
+  static String get rawCreate => ExtraQuery.instance.createTable(
+        name,
+        fields: [
+          'id INTEGER PRIMARY KEY autoincrement',
+          'name TEXT NOT NULL',
+        ],
+      );
 
-  // TODO(hodoan): FUTURE ```JOIN table ON```
-  static Future<List<E>> rawQuery<E, T extends ITableProperties<DogCategory>>({
+  static Future<List<E>>
+      rawQuery<E, T extends IColumn<DogCategory>, F, TF extends IColumn<F>>({
     List<T> select = const [],
     List<T> groupBy = const [],
+    List<T> oderByByHaving = const [],
     List<T> where = const [],
     List<T> orderBy = const [],
+    List<T> having = const [],
+    List<TF> innerJoin = const [],
+    List<TF> leftJoin = const [],
     int? limit,
     int offset = 0,
     required E Function(Map<String, Object?>) parser,
-  }) async {
-    final s = select.isEmpty ? '*' : select.map((e) => e.str).join(', ');
-    final w =
-        where.isEmpty ? '' : 'WHERE ${where.map((e) => e.str).join(', ')}';
-    final o = orderBy.isEmpty
-        ? ''
-        : 'ORDER BY ${orderBy.map((e) => e.str).join(', ')}';
-    final l = limit.raw(offset);
-    final g = groupBy.rawGroup;
-    final raw = [w, g, o, l].where((e) => e.isNotEmpty).join(' ');
-    final query = 'SELECT $s FROM dog_categories $raw';
+    bool logQuery = true,
+  }) =>
+          ExtraQuery.instance.rawQuery<E, DogCategory, T, F, TF>(
+            name,
+            ConfigSqflite.instance.database,
+            parser: parser,
+            groupBy: groupBy,
+            having: having,
+            innerJoin: innerJoin,
+            leftJoin: leftJoin,
+            limit: limit,
+            logQuery: logQuery,
+            oderByByHaving: oderByByHaving,
+            offset: offset,
+            orderBy: orderBy,
+            select: select,
+            where: where,
+          );
 
-    log(query);
+  Future<void> insert() => ExtraQuery.instance.insert(
+        name,
+        ConfigSqflite.instance.database,
+        map: toMap(),
+      );
 
-    final db = await ConfigSqflite.instance.database;
-    final lst = await db.rawQuery(query);
-    return lst.map((e) => parser(e)).toList();
-  }
+  Future<void> insertAuto() => ExtraQuery.instance.insert(
+        name,
+        ConfigSqflite.instance.database,
+        fields: [dogCategoryName.str],
+        values: [name],
+      );
 
-  Future<void> insert() async {
-    final db = await ConfigSqflite.instance.database;
-    await db.insert(
-      'dog_categories',
-      toMap(),
-      conflictAlgorithm: ConflictAlgorithm.replace,
-    );
-  }
+  static Future<List<DogCategory>> find() =>
+      ExtraQuery.instance.find<DogCategory>(
+        name,
+        ConfigSqflite.instance.database,
+        parser: (e) => DogCategory.fromJson(e),
+      );
 
-  Future<void> insertAuto() async {
-    final db = await ConfigSqflite.instance.database;
-    await db.rawInsert('INSERT INTO dog_categories(name) VALUES(?)', [name]);
-  }
+  static Future<DogCategory?> findOne() =>
+      ExtraQuery.instance.findOne<DogCategory>(
+        name,
+        ConfigSqflite.instance.database,
+        parser: (e) => DogCategory.fromJson(e),
+      );
 
-  static Future<List<DogCategory>> find() async {
-    final db = await ConfigSqflite.instance.database;
-    final lst = await db.query('dog_categories');
-    return lst.map((e) => DogCategory.fromJson(e)).toList();
-  }
+  static Future<DogCategory?> findOneById(int id) =>
+      ExtraQuery.instance.findOneById<int, DogCategory, IColumn<DogCategory>>(
+        name,
+        ConfigSqflite.instance.database,
+        IdValue(dogCategoryId, id),
+        parser: (e) => DogCategory.fromJson(e),
+      );
 
-  static Future<DogCategory?> findOne() async {
-    final db = await ConfigSqflite.instance.database;
-    final lst = await db.rawQuery('SELECT * FROM dog_categories LIMIT 1');
-    if (lst.isEmpty) return null;
-    assert(lst.length == 1, 'Raw query Exception');
-    return DogCategory.fromJson(lst.first);
-  }
+  Future<void> update() =>
+      ExtraQuery.instance.update<int, DogCategory, IColumn<DogCategory>>(
+        name,
+        ConfigSqflite.instance.database,
+        map: toMap(),
+        IdValue(dogCategoryId, id),
+      );
 
-  static Future<DogCategory?> findOneById(String id) async {
-    final db = await ConfigSqflite.instance.database;
-    final lst = await db
-        .rawQuery('SELECT * FROM dog_categories WHERE id = ? LIMIT 1', [id]);
-    if (lst.isEmpty) return null;
-    assert(lst.length == 1, 'Raw query Exception');
-    return DogCategory.fromJson(lst.first);
-  }
-
-  Future<void> update() async {
-    final db = await ConfigSqflite.instance.database;
-    await db
-        .update('dog_categories', toMap(), where: 'id = ?', whereArgs: [id]);
-  }
-
-  Future<void> delete() async {
-    final db = await ConfigSqflite.instance.database;
-    await db.delete('dog_categories', where: 'id = ?', whereArgs: [id]);
-  }
+  Future<void> delete() =>
+      ExtraQuery.instance.delete<int, DogCategory, IColumn<DogCategory>>(
+        name,
+        ConfigSqflite.instance.database,
+        IdValue(dogCategoryId, id),
+      );
 }

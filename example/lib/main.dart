@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:math';
 
-import 'package:db_sql_annotation/db_sql_annotation.dart';
+import 'package:db_sql_query/db_sql_query.dart';
 import 'package:example/config_sqflite.dart';
 import 'package:example/dog.dart';
 import 'package:example/dog_category.dart';
@@ -161,27 +161,39 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
             TextButton(
               onPressed: () async {
-                final dogs =
-                    await DogQuery.rawQuery<Dog, ITableProperties<Dog>>(
+                final dogs = await DogQuery.rawQuery(
                   parser: (e) => Dog.fromJson(e),
                   select: [
                     dogId,
                     dogAge,
                     dogName,
                     dogCategory,
-                    Count(dogAge),
+                    Rename<Dog, IColumn<Dog>>(Count(dogAge), 'count'),
                   ],
                   // where: [
                   //   WhereValue(dogAge, 214),
                   // ],
                   oderByByHaving: [
-                    OrderByValue<Dog, ITableProperties<Dog>>(Count(dogAge)),
+                    OrderByValue<Dog, IColumn<Dog>>(GetName('count')),
                     // OrderByValue(dogAge),
                     // OrderByValue(dogCategory),
                   ],
                   having: [
-                    BetweenValues<Dog, ITableProperties<Dog>>(
-                        Count(dogAge), 0, 20),
+                    BetweenValues<Dog, IColumn<Dog>>(GetName('count'), 0, 20),
+                  ],
+                  innerJoin: [
+                    InnerJoin(
+                      select: [
+                        dogCategoryName,
+                      ],
+                      where: [
+                        EqualValue<DogCategory, IColumn<DogCategory>,
+                            IColumn<Dog>>(
+                          dogCategoryId,
+                          dogCategory,
+                        ),
+                      ],
+                    )
                   ],
                   limit: 100,
                   offset: 0,

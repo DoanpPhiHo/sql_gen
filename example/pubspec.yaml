@@ -9,9 +9,8 @@ dependencies:
   flutter:
     sdk: flutter
   cupertino_icons: ^1.0.2
-  db_sql_annotation:
-    path: ../packages/db_sql_annotation
-  sqflite: ^2.3.0
+  db_sql_query:
+    path: ../packages/db_sql_query
   path: ^1.8.3
 
 dev_dependencies:

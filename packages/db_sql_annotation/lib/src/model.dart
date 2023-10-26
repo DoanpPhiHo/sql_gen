@@ -1,5 +1,8 @@
+part of '../db_sql_annotation.dart';
+
 class ModelSql {
-  const ModelSql();
+  const ModelSql({this.name});
+  final String? name;
 }
 
 const modelSql = ModelSql();

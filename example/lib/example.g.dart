@@ -8,50 +8,58 @@ part of 'example.dart';
 
 // ignore_for_file: no_leading_underscores_for_local_identifiers
 
-class _ExampleModel implements ExampleModel {
-  _ExampleModel(
-    this.id, {
-    required this.name,
-    required this.passportId,
-    this.age = 10,
-    this.region,
-    this.sex = Sex.male,
+class _ExampleModelId extends IColumn<ExampleModel> {
+  const _ExampleModelId(
+    super.str, {
+    super.tableName,
   });
+}
 
-  final int id;
+class _ExampleModelName extends IColumn<ExampleModel> {
+  const _ExampleModelName(
+    super.str, {
+    super.tableName,
+  });
+}
 
-  final String name;
+class _ExampleModelPassportId extends IColumn<ExampleModel> {
+  const _ExampleModelPassportId(
+    super.str, {
+    super.tableName,
+  });
+}
 
-  final String passportId;
+class _ExampleModelAge extends IColumn<ExampleModel> {
+  const _ExampleModelAge(
+    super.str, {
+    super.tableName,
+  });
+}
 
-  final int? age;
+class _ExampleModelRegion extends IColumn<ExampleModel> {
+  const _ExampleModelRegion(
+    super.str, {
+    super.tableName,
+  });
+}
 
-  final int? region;
-
-  final Sex? sex;
+class _ExampleModelSex extends IColumn<ExampleModel> {
+  const _ExampleModelSex(
+    super.str, {
+    super.tableName,
+  });
 }
 
 extension ExampleModelQuery on ExampleModel {
+  static String get name => 'example';
   static rawCreateTable() {
     return '''CREATE TABLE ExampleModel (
-      id INTEGER PRIMARY KEY NOT NULL, 
+      id INTEGER NOT NULL, 
 			name TEXT NOT NULL, 
 			passportId TEXT NOT NULL, 
-			age INTEGER NOT NULL, 
-			region INTEGER, 
+			age INTEGER, 
+			region INTEGER NOT NULL, 
 			sex TEXT
     )''';
-  }
-
-  static rawDropTable() {
-    return 'DROP TABLE IF EXISTS ExampleModel';
-  }
-
-  static rawSelectAll() {
-    return 'SELECT * FROM ExampleModel';
-  }
-
-  static rawDeleteByID(int id) {
-    return 'DELETE * FROM ExampleModel where id = $id';
   }
 }

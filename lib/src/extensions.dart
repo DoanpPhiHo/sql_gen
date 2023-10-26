@@ -131,6 +131,7 @@ extension ParameterElementX on ParameterElement {
   DartObject? get _valueColumn => _columnChecker.firstAnnotationOfExact(this);
   DartObject? get _dataColumn => _valueColumn?.getField('defaultValue');
   Code? get _codeColumn => _dataColumn.value(type).genCode;
+
   //#endregion
   //#region primary key
   bool get _isPrimaryKey => _primaryKeyChecker.hasAnnotationOfExact(this);
