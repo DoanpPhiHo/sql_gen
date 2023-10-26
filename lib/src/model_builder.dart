@@ -113,6 +113,8 @@ class ModelGenerator extends GeneratorForAnnotation<ModelSql> {
 
       final tableName = element.displayName;
 
+      final tName = className ?? tableName.underscore;
+
       return [
         //#region ================= name =====================
         Method(
@@ -122,9 +124,23 @@ class ModelGenerator extends GeneratorForAnnotation<ModelSql> {
             ..static = true
             ..lambda = true
             ..returns = refer('String')
-            ..body = Code('\'${className ?? tableName.underscore}\''),
+            ..body = Code('\'$tName\''),
         ),
-        //#endregion ================= rawCreateTable =====================
+        //#endregion ================= name =====================
+        //#region ================= fields =====================
+        for (final field in eClass.fields)
+          Method(
+            (f) => f
+              ..name = (eClass.displayName + field.displayName.capitalize)
+                  .unCapitalize
+              ..type = MethodType.getter
+              ..static = true
+              ..lambda = true
+              ..returns = refer('IColumn<${eClass.displayName}>')
+              ..body = Code(
+                  'const _${eClass.displayName + field.displayName.capitalize}(\'${field.displayName}\',tableName:\'$tName\')'),
+          ),
+        //#endregion ================= name =====================
         //#region ================= rawCreateTable =====================
         Method(
           (f) => f

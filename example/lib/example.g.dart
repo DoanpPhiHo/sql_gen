@@ -52,6 +52,18 @@ class _ExampleModelSex extends IColumn<ExampleModel> {
 
 extension ExampleModelQuery on ExampleModel {
   static String get name => 'example';
+  static IColumn<ExampleModel> get exampleModelId =>
+      const _ExampleModelId('id', tableName: 'example');
+  static IColumn<ExampleModel> get exampleModelName =>
+      const _ExampleModelName('name', tableName: 'example');
+  static IColumn<ExampleModel> get exampleModelPassportId =>
+      const _ExampleModelPassportId('passportId', tableName: 'example');
+  static IColumn<ExampleModel> get exampleModelAge =>
+      const _ExampleModelAge('age', tableName: 'example');
+  static IColumn<ExampleModel> get exampleModelRegion =>
+      const _ExampleModelRegion('region', tableName: 'example');
+  static IColumn<ExampleModel> get exampleModelSex =>
+      const _ExampleModelSex('sex', tableName: 'example');
   static rawCreateTable() {
     return '''CREATE TABLE ExampleModel (
       id INTEGER NOT NULL, 
