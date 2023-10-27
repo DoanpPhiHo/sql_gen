@@ -1,7 +1,7 @@
 import 'package:example/dog.dart';
 import 'package:example/dog_category.dart';
 import 'package:path/path.dart';
-import 'package:sqflite/sqflite.dart';
+import 'package:db_sql_query/db_sql_query.dart';
 
 class ConfigSqflite {
   ConfigSqflite._();

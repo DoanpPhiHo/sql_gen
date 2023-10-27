@@ -1,7 +1,10 @@
 import 'package:db_sql_query/db_sql_query.dart';
 
+import 'config_sqflite.dart';
+
 part 'example.g.dart';
 
+@enumeratedSql
 enum Sex { male, female }
 
 @ModelSql(name: 'example')
@@ -14,12 +17,12 @@ class ExampleModel {
   final String passportId;
   @column
   final int? age;
-  @column
+  @TColumn(4454)
   final int? region;
   @enumerated
   final Sex? sex;
 
-  ExampleModel({
+  const ExampleModel({
     required this.id,
     required this.name,
     required this.passportId,
@@ -27,4 +30,7 @@ class ExampleModel {
     required this.region,
     this.sex = Sex.male,
   });
+
+  factory ExampleModel.fromJsonDB(Map<String, dynamic> json) =>
+      $ExampleModelFromJsonDB(json);
 }
