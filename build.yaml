@@ -3,12 +3,30 @@ targets:
     builders:
       model_builder:
         enabled: true
+      enum_builder:
+        enabled: true
+      config_builder:
+        enabled: true
 
 builders:
   model_builder:
     import: "package:db_sql_generator/builder.dart"
     builder_factories: ["modelBuilder"]
     build_extensions: { ".dart": [".model_builder.g.part"] }
+    auto_apply: dependents
+    build_to: cache
+    applies_builders: ["source_gen|combining_builder"]
+  enum_builder:
+    import: "package:db_sql_generator/builder.dart"
+    builder_factories: ["enumBuilder"]
+    build_extensions: { ".dart": [".enum_builder.g.part"] }
+    auto_apply: dependents
+    build_to: cache
+    applies_builders: ["source_gen|combining_builder"]
+  config_builder:
+    import: "package:db_sql_generator/builder.dart"
+    builder_factories: ["configBuilder"]
+    build_extensions: { ".dart": [".config_builder.g.part"] }
     auto_apply: dependents
     build_to: cache
     applies_builders: ["source_gen|combining_builder"]

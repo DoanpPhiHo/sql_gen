@@ -4,13 +4,14 @@ publish_to: 'none'
 version: 1.0.0+1
 
 environment:
-  sdk: '>=2.19.4 <3.0.0'
+  sdk: '>=2.19.6 <4.0.0'
 dependencies:
   flutter:
     sdk: flutter
   cupertino_icons: ^1.0.2
-  db_sql_annotation:
-    path: ../packages/db_sql_annotation
+  db_sql_query:
+    path: ../packages/db_sql_query
+  path: ^1.8.3
 
 dev_dependencies:
   build_runner: ^2.4.6

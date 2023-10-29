@@ -1,37 +1,65 @@
+part of '../db_sql_annotation.dart';
+
+// TODO(hodoan): doing ConfigSqflite.instance.database, test query
+
+class ModelSqlGenerated<T extends ModelSql> {
+  const ModelSqlGenerated();
+}
+
+class SqlConfig {
+  final String dbName;
+
+  const SqlConfig(this.dbName);
+}
+
 class ModelSql {
-  const ModelSql();
+  const ModelSql({
+    this.name,
+    this.classQuery,
+    this.db,
+  });
+  final String? name;
+  final String? classQuery;
+  final String? db;
 }
 
 const modelSql = ModelSql();
 
-class Property {
-  const Property();
+class EnumeratedSql {
+  const EnumeratedSql();
+}
+
+const enumeratedSql = EnumeratedSql();
+
+abstract class Property {
+  const Property({this.name});
+  final String? name;
 }
 
 class ID extends Property {
-  const ID();
+  const ID({super.name});
 }
 
 class IDAuto extends Property {
-  const IDAuto();
+  const IDAuto({super.name});
 }
 
-class Column<T> extends Property {
-  const Column(this.defaultValue);
+class TColumn<T> extends Property {
+  const TColumn(this.defaultValue, {super.name});
   final T? defaultValue;
 }
 
-class Index extends Property {
-  const Index();
+class TIndex extends Property {
+  const TIndex({super.name});
 }
 
 class Enumerated<T> extends Property {
-  const Enumerated(this.defaultValue);
+  const Enumerated(this.defaultValue, {super.name});
   final T? defaultValue;
 }
 
 const primaryKey = ID();
 const primaryKeyAuto = IDAuto();
-const column = Column(null);
-const index = Index();
+const column = TColumn(null);
+const index = TIndex();
 const enumerated = Enumerated(null);

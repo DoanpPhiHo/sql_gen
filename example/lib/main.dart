@@ -1,29 +1,31 @@
+import 'dart:async';
+import 'dart:math';
+
+import 'package:db_sql_query/db_sql_query.dart';
+import 'package:example/config_sqflite.dart';
+import 'package:example/dog.dart';
+import 'package:example/dog_category.dart';
 import 'package:flutter/material.dart';
 
-import 'example.dart';
-
-void main() {
-  runApp(const MyApp());
+void main() async {
+  await runZonedGuarded<Future<void>>(
+    () async {
+      WidgetsFlutterBinding.ensureInitialized();
+      await ConfigSqflite.instance.configSqflite();
+      runApp(const MyApp());
+    },
+    (error, stack) {},
+  );
 }
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // Try running your application with "flutter run". You'll see the
-        // application has a blue toolbar. Then, without quitting the app, try
-        // changing the primarySwatch below to Colors.green and then invoke
-        // "hot reload" (press "r" in the console where you ran "flutter run",
-        // or simply save your changes to "hot reload" in a Flutter IDE).
-        // Notice that the counter didn't reset back to zero; the application
-        // is not restarted.
         primarySwatch: Colors.blue,
       ),
       home: const MyHomePage(title: 'Flutter Demo Home Page'),
@@ -34,15 +36,6 @@ class MyApp extends StatelessWidget {
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key, required this.title});
 
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
-
   final String title;
 
   @override
@@ -50,69 +43,187 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
+  List<Dog> _dogs = [];
 
-  void _incrementCounter() {
-    ExampleModelQuery.rawCreateTable();
+  void _loadDogs() async {
+    final dogs = await DogQuery.find();
     setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
+      _dogs = dogs;
     });
   }
 
   @override
+  void initState() {
+    super.initState();
+    _loadDogs();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
     return Scaffold(
       appBar: AppBar(
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
         title: Text(widget.title),
       ),
       body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
-        child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Invoke "debug painting" (press "p" in the console, choose the
-          // "Toggle Debug Paint" action from the Flutter Inspector in Android
-          // Studio, or the "Toggle Debug Paint" command in Visual Studio Code)
-          // to see the wireframe for each widget.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          mainAxisAlignment: MainAxisAlignment.center,
+        child: ListView(
           children: <Widget>[
-            const Text(
-              'You have pushed the button this many times:',
+            for (final dog in _dogs)
+              Card(
+                child: GestureDetector(
+                  onTap: () {
+                    showDialog(
+                        context: context,
+                        builder: (ctx) {
+                          final nameCtl = TextEditingController(text: dog.name);
+                          final ageCtl =
+                              TextEditingController(text: dog.age.toString());
+                          return Material(
+                            type: MaterialType.transparency,
+                            child: Center(
+                              child: Container(
+                                padding: const EdgeInsets.all(10),
+                                color: Colors.white,
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    const Text('Update'),
+                                    TextFormField(
+                                      controller: nameCtl,
+                                    ),
+                                    TextFormField(
+                                      controller: ageCtl,
+                                      keyboardType: TextInputType.number,
+                                    ),
+                                    TextButton(
+                                      onPressed: () async {
+                                        await Dog(
+                                          id: dog.id,
+                                          name: nameCtl.text,
+                                          age: int.tryParse(ageCtl.text) ?? 0,
+                                          category: dog.category,
+                                        ).update();
+                                        // ignore: use_build_context_synchronously
+                                        Navigator.of(context).pop();
+                                        _loadDogs();
+                                      },
+                                      child: const Text('Update'),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          );
+                        });
+                  },
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          '${dog.id} ${dog.name} ${dog.age} ${dog.category}',
+                          style: Theme.of(context).textTheme.headlineMedium,
+                        ),
+                      ),
+                      TextButton(
+                        onPressed: () async {
+                          await dog.delete();
+                          _loadDogs();
+                        },
+                        child: const Text('Delete'),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+          ],
+        ),
+      ),
+      bottomNavigationBar: BottomAppBar(
+        child: Row(
+          children: [
+            TextButton(
+              onPressed: () async {
+                await Future.wait([
+                  for (int i = 0; i < 5; i++)
+                    DogCategory(name: 'name $i').insertAuto()
+                ]);
+              },
+              child: const Text('init cate'),
             ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headlineMedium,
+            TextButton(
+              onPressed: () async {
+                final dog = await DogQuery.findOne();
+                if (dog == null) return;
+                setState(() {
+                  _dogs = [dog];
+                });
+              },
+              child: const Text('Get One'),
+            ),
+            TextButton(
+              onPressed: () async {
+                final dogs = await DogQuery.rawQuery(
+                  parser: (e) => Dog.fromJson(e),
+                  select: [
+                    dogId,
+                    dogAge,
+                    dogName,
+                    dogCategory,
+                    Rename<Dog, IColumn<Dog>>(Count(dogAge), 'count'),
+                  ],
+                  // where: [
+                  //   WhereValue(dogAge, 214),
+                  // ],
+                  oderByByHaving: [
+                    OrderByValue<Dog, IColumn<Dog>>(GetName('count')),
+                    // OrderByValue(dogAge),
+                    // OrderByValue(dogCategory),
+                  ],
+                  having: [
+                    BetweenValues<Dog, IColumn<Dog>>(GetName('count'), 0, 20),
+                  ],
+                  innerJoin: [
+                    InnerJoin(
+                      select: [
+                        dogCategoryName,
+                      ],
+                      where: [
+                        EqualValue<DogCategory, IColumn<DogCategory>,
+                            IColumn<Dog>>(
+                          dogCategoryId,
+                          dogCategory,
+                        ),
+                      ],
+                    )
+                  ],
+                  limit: 100,
+                  offset: 0,
+                  groupBy: [dogCategory],
+                );
+                setState(() {
+                  _dogs = dogs;
+                });
+              },
+              child: const Text('Query raw'),
+            ),
+            TextButton(
+              onPressed: () {
+                Dog(
+                  name: 'na' * (Random().nextInt(4) + 1).toInt() +
+                      'me' * (Random().nextInt(4) + 1).toInt(),
+                  age: (Random().nextInt(20) + 7).toInt(),
+                  category: (Random().nextInt(2) + 1).toInt(),
+                ).insertAuto();
+              },
+              child: const Text('insert random'),
             ),
           ],
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
+        onPressed: _loadDogs,
         tooltip: 'Increment',
         child: const Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
+      ),
     );
   }
 }

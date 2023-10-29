@@ -1,17 +1,36 @@
-import 'package:db_sql_annotation/db_sql_annotation.dart';
+import 'package:db_sql_query/db_sql_query.dart';
+
+import 'config_sqflite.dart';
 
 part 'example.g.dart';
 
+@enumeratedSql
 enum Sex { male, female }
 
-@modelSql
-abstract class ExampleModel {
-  factory ExampleModel(
-    @primaryKey int id, {
-    @index required String name,
-    @column required String passportId,
-    @Column(10) required int? age,
-    @column int? region,
-    @Enumerated(Sex.male) Sex? sex,
-  }) = _ExampleModel;
+@ModelSql(name: 'example')
+class ExampleModel {
+  @primaryKeyAuto
+  final int id;
+  @index
+  final String name;
+  @column
+  final String passportId;
+  @column
+  final int? age;
+  @TColumn(4454)
+  final int? region;
+  @enumerated
+  final Sex? sex;
+
+  const ExampleModel({
+    required this.id,
+    required this.name,
+    required this.passportId,
+    this.age = 10,
+    required this.region,
+    this.sex = Sex.male,
+  });
+
+  factory ExampleModel.fromJsonDB(Map<String, dynamic> json) =>
+      $ExampleModelFromJsonDB(json);
 }
