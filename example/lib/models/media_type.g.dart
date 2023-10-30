@@ -22,16 +22,8 @@ class _MediaTypeName extends IColumn<MediaType> {
   });
 }
 
-extension MediaTypeField on MediaType {
-  static const IColumn<MediaType> mediaTypeId =
-      _MediaTypeId('id', tableName: 'media_type');
-
-  static const IColumn<MediaType> mediaTypeName =
-      _MediaTypeName('name', tableName: 'media_type');
-}
-
 MediaType $MediaTypeFromJsonDB(Map<String, dynamic> json) =>
-    MediaType(id: json['id'] as int? ?? 0, name: json['name'] as String);
+    MediaType(id: json['id'] as int ?? 0, name: json['name'] as String);
 
 // **************************************************************************
 // ModelGenerator
@@ -40,6 +32,13 @@ MediaType $MediaTypeFromJsonDB(Map<String, dynamic> json) =>
 // ignore_for_file:
 
 extension MediaTypeQuery on MediaType {
+  static const IColumn<MediaType> mediaTypeId =
+      _MediaTypeId('id', tableName: 'media_type');
+
+  static const IColumn<MediaType> mediaTypeName =
+      _MediaTypeName('name', tableName: 'media_type');
+
+  Map<String, dynamic> toMapFromDB() => {'id': id, 'name': name};
   static String get name => 'media_type';
   static String get rawCreate => ExtraQuery.instance.createTable(
         name,
@@ -54,7 +53,6 @@ extension MediaTypeQuery on MediaType {
         ConfigSqflite.instance.database,
         IdValue(mediaTypeId, id),
       );
-  Map<String, dynamic> toMapFromDB() => {'id': id, 'name': name};
   Future<void> update() =>
       ExtraQuery.instance.update<int, MediaType, IColumn<MediaType>>(
         name,
@@ -82,7 +80,7 @@ extension MediaTypeQuery on MediaType {
   Future<void> insert() => ExtraQuery.instance.insert(
         name,
         ConfigSqflite.instance.database,
-        fields: [MediaTypeField.mediaTypeName.str],
+        fields: [MediaTypeQuery.mediaTypeName.str],
         values: [name],
       );
   static Future<List<E>>

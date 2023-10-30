@@ -15,20 +15,6 @@ class _InvoiceItemId extends IColumn<InvoiceItem> {
   });
 }
 
-class _InvoiceItemUnitPrice extends IColumn<InvoiceItem> {
-  const _InvoiceItemUnitPrice(
-    super.str, {
-    super.tableName,
-  });
-}
-
-class _InvoiceItemQuantity extends IColumn<InvoiceItem> {
-  const _InvoiceItemQuantity(
-    super.str, {
-    super.tableName,
-  });
-}
-
 class _InvoiceItemInvoiceId extends IColumn<InvoiceItem> {
   const _InvoiceItemInvoiceId(
     super.str, {
@@ -43,29 +29,26 @@ class _InvoiceItemTrackId extends IColumn<InvoiceItem> {
   });
 }
 
-extension InvoiceItemField on InvoiceItem {
-  static const IColumn<InvoiceItem> invoiceItemId =
-      _InvoiceItemId('id', tableName: 'invoice_item');
+class _InvoiceItemUnitPrice extends IColumn<InvoiceItem> {
+  const _InvoiceItemUnitPrice(
+    super.str, {
+    super.tableName,
+  });
+}
 
-  static const IColumn<InvoiceItem> invoiceItemUnitPrice =
-      _InvoiceItemUnitPrice('unitPrice', tableName: 'invoice_item');
-
-  static const IColumn<InvoiceItem> invoiceItemQuantity =
-      _InvoiceItemQuantity('quantity', tableName: 'invoice_item');
-
-  static const IColumn<InvoiceItem> invoiceItemInvoiceId =
-      _InvoiceItemInvoiceId('invoiceId', tableName: 'invoice_item');
-
-  static const IColumn<InvoiceItem> invoiceItemTrackId =
-      _InvoiceItemTrackId('trackId', tableName: 'invoice_item');
+class _InvoiceItemQuantity extends IColumn<InvoiceItem> {
+  const _InvoiceItemQuantity(
+    super.str, {
+    super.tableName,
+  });
 }
 
 InvoiceItem $InvoiceItemFromJsonDB(Map<String, dynamic> json) => InvoiceItem(
-    id: json['id'] as int? ?? 0,
-    unitPrice: json['unitPrice'] as int,
-    quantity: json['quantity'] as int,
+    id: json['id'] as int ?? 0,
     invoiceId: json['invoiceId'] as int,
-    trackId: json['trackId'] as int);
+    trackId: json['trackId'] as int,
+    unitPrice: json['unitPrice'] as int,
+    quantity: json['quantity'] as int);
 
 // **************************************************************************
 // ModelGenerator
@@ -74,6 +57,28 @@ InvoiceItem $InvoiceItemFromJsonDB(Map<String, dynamic> json) => InvoiceItem(
 // ignore_for_file:
 
 extension InvoiceItemQuery on InvoiceItem {
+  static const IColumn<InvoiceItem> invoiceItemId =
+      _InvoiceItemId('id', tableName: 'invoice_item');
+
+  static const IColumn<InvoiceItem> invoiceItemInvoiceId =
+      _InvoiceItemInvoiceId('invoiceId', tableName: 'invoice_item');
+
+  static const IColumn<InvoiceItem> invoiceItemTrackId =
+      _InvoiceItemTrackId('trackId', tableName: 'invoice_item');
+
+  static const IColumn<InvoiceItem> invoiceItemUnitPrice =
+      _InvoiceItemUnitPrice('unitPrice', tableName: 'invoice_item');
+
+  static const IColumn<InvoiceItem> invoiceItemQuantity =
+      _InvoiceItemQuantity('quantity', tableName: 'invoice_item');
+
+  Map<String, dynamic> toMapFromDB() => {
+        'id': id,
+        'invoiceId': invoiceId,
+        'trackId': trackId,
+        'unitPrice': unitPrice,
+        'quantity': quantity
+      };
   static String get name => 'invoice_item';
   static String get rawCreate => ExtraQuery.instance.createTable(
         name,
@@ -91,13 +96,6 @@ extension InvoiceItemQuery on InvoiceItem {
         ConfigSqflite.instance.database,
         IdValue(invoiceItemId, id),
       );
-  Map<String, dynamic> toMapFromDB() => {
-        'id': id,
-        'unitPrice': unitPrice,
-        'quantity': quantity,
-        'invoiceId': invoiceId,
-        'trackId': trackId
-      };
   Future<void> update() =>
       ExtraQuery.instance.update<int, InvoiceItem, IColumn<InvoiceItem>>(
         name,
@@ -128,10 +126,10 @@ extension InvoiceItemQuery on InvoiceItem {
         name,
         ConfigSqflite.instance.database,
         fields: [
-          InvoiceItemField.invoiceItemUnitPrice.str,
-          InvoiceItemField.invoiceItemQuantity.str,
-          InvoiceItemField.invoiceItemInvoiceId.str,
-          InvoiceItemField.invoiceItemTrackId.str
+          InvoiceItemQuery.invoiceItemUnitPrice.str,
+          InvoiceItemQuery.invoiceItemQuantity.str,
+          InvoiceItemQuery.invoiceItemInvoiceId.str,
+          InvoiceItemQuery.invoiceItemTrackId.str
         ],
         values: [unitPrice, quantity, invoiceId, trackId],
       );

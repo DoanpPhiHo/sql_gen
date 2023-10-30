@@ -22,17 +22,9 @@ class _PlaylistTrackTrackId extends IColumn<PlaylistTrack> {
   });
 }
 
-extension PlaylistTrackField on PlaylistTrack {
-  static const IColumn<PlaylistTrack> playlistTrackPlaylistId =
-      _PlaylistTrackPlaylistId('playlistId', tableName: 'playlist_track');
-
-  static const IColumn<PlaylistTrack> playlistTrackTrackId =
-      _PlaylistTrackTrackId('trackId', tableName: 'playlist_track');
-}
-
 PlaylistTrack $PlaylistTrackFromJsonDB(Map<String, dynamic> json) =>
     PlaylistTrack(
-        playlistId: json['playlistId'] as int? ?? 0,
+        playlistId: json['playlistId'] as int ?? 0,
         trackId: json['trackId'] as int);
 
 // **************************************************************************
@@ -42,6 +34,14 @@ PlaylistTrack $PlaylistTrackFromJsonDB(Map<String, dynamic> json) =>
 // ignore_for_file:
 
 extension PlaylistTrackQuery on PlaylistTrack {
+  static const IColumn<PlaylistTrack> playlistTrackPlaylistId =
+      _PlaylistTrackPlaylistId('playlistId', tableName: 'playlist_track');
+
+  static const IColumn<PlaylistTrack> playlistTrackTrackId =
+      _PlaylistTrackTrackId('trackId', tableName: 'playlist_track');
+
+  Map<String, dynamic> toMapFromDB() =>
+      {'playlistId': playlistId, 'trackId': trackId};
   static String get name => 'playlist_track';
   static String get rawCreate => ExtraQuery.instance.createTable(
         name,
@@ -56,8 +56,6 @@ extension PlaylistTrackQuery on PlaylistTrack {
         ConfigSqflite.instance.database,
         IdValue(playlistTrackPlaylistId, playlistId),
       );
-  Map<String, dynamic> toMapFromDB() =>
-      {'playlistId': playlistId, 'trackId': trackId};
   Future<void> update() =>
       ExtraQuery.instance.update<int, PlaylistTrack, IColumn<PlaylistTrack>>(
         name,
@@ -87,7 +85,7 @@ extension PlaylistTrackQuery on PlaylistTrack {
   Future<void> insert() => ExtraQuery.instance.insert(
         name,
         ConfigSqflite.instance.database,
-        fields: [PlaylistTrackField.playlistTrackTrackId.str],
+        fields: [PlaylistTrackQuery.playlistTrackTrackId.str],
         values: [trackId],
       );
   static Future<List<E>>

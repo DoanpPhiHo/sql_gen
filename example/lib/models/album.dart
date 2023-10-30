@@ -12,10 +12,10 @@ class Album extends ITable {
   final String title;
   @ForeignKey(
     name: 'artistId',
-    // onDelete: ForeignAction.noAction,
+    onDelete: ForeignAction.noAction,
     onUpdate: ForeignAction.noAction,
   )
-  final Artist artist;
+  final Artist? artist;
 
   Album({
     this.id = 0,

@@ -36,19 +36,8 @@ class _DogCategory extends IColumn<Dog> {
   });
 }
 
-extension DogField on Dog {
-  static const IColumn<Dog> dogId = _DogId('id', tableName: 'dog');
-
-  static const IColumn<Dog> dogName = _DogName('name', tableName: 'dog');
-
-  static const IColumn<Dog> dogAge = _DogAge('age', tableName: 'dog');
-
-  static const IColumn<Dog> dogCategory =
-      _DogCategory('category', tableName: 'dog');
-}
-
 Dog $DogFromJsonDB(Map<String, dynamic> json) => Dog(
-    id: json['id'] as int? ?? 0,
+    id: json['id'] as int ?? 0,
     name: json['name'] as String,
     age: json['age'] as int?,
     category: json['category'] as int);
@@ -60,6 +49,17 @@ Dog $DogFromJsonDB(Map<String, dynamic> json) => Dog(
 // ignore_for_file:
 
 extension DogQuery on Dog {
+  static const IColumn<Dog> dogId = _DogId('id', tableName: 'dog');
+
+  static const IColumn<Dog> dogName = _DogName('name', tableName: 'dog');
+
+  static const IColumn<Dog> dogAge = _DogAge('age', tableName: 'dog');
+
+  static const IColumn<Dog> dogCategory =
+      _DogCategory('category', tableName: 'dog');
+
+  Map<String, dynamic> toMapFromDB() =>
+      {'id': id, 'name': name, 'age': age, 'category': category};
   static String get name => 'dog';
   static String get rawCreate => ExtraQuery.instance.createTable(
         name,
@@ -75,8 +75,6 @@ extension DogQuery on Dog {
         ConfigSqflite.instance.database,
         IdValue(dogId, id),
       );
-  Map<String, dynamic> toMapFromDB() =>
-      {'id': id, 'name': name, 'age': age, 'category': category};
   Future<void> update() => ExtraQuery.instance.update<int, Dog, IColumn<Dog>>(
         name,
         ConfigSqflite.instance.database,
@@ -104,9 +102,9 @@ extension DogQuery on Dog {
         name,
         ConfigSqflite.instance.database,
         fields: [
-          DogField.dogName.str,
-          DogField.dogAge.str,
-          DogField.dogCategory.str
+          DogQuery.dogName.str,
+          DogQuery.dogAge.str,
+          DogQuery.dogCategory.str
         ],
         values: [name, age, category],
       );

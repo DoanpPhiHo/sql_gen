@@ -1,7 +1,7 @@
 part of 'extensions.dart';
 
 extension DartTypeX on DartType {
-  TypeSql typeSql(Element element) {
+  TypeSql get typeSql {
     if (isDartCoreInt) return TypeSql.integer;
     if (isDartCoreBool) return TypeSql.bool;
     if (isDartCoreDouble) return TypeSql.double;
@@ -12,10 +12,6 @@ extension DartTypeX on DartType {
     if (toString() == 'DateTime') return TypeSql.integer;
     if (isDartCoreEnum || element is EnumElement) {
       return TypeSql.enumerated;
-    }
-    if (element is ClassElement) {
-      //TODO(hodoan):
-      return TypeSql.string;
     }
     print('Data type is not supported yet: ${toString()}');
     return TypeSql.text;

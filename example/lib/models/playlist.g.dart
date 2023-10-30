@@ -22,16 +22,8 @@ class _PlaylistName extends IColumn<Playlist> {
   });
 }
 
-extension PlaylistField on Playlist {
-  static const IColumn<Playlist> playlistId =
-      _PlaylistId('id', tableName: 'playlist');
-
-  static const IColumn<Playlist> playlistName =
-      _PlaylistName('name', tableName: 'playlist');
-}
-
 Playlist $PlaylistFromJsonDB(Map<String, dynamic> json) =>
-    Playlist(id: json['id'] as int? ?? 0, name: json['name'] as String);
+    Playlist(id: json['id'] as int ?? 0, name: json['name'] as String);
 
 // **************************************************************************
 // ModelGenerator
@@ -40,6 +32,13 @@ Playlist $PlaylistFromJsonDB(Map<String, dynamic> json) =>
 // ignore_for_file:
 
 extension PlaylistQuery on Playlist {
+  static const IColumn<Playlist> playlistId =
+      _PlaylistId('id', tableName: 'playlist');
+
+  static const IColumn<Playlist> playlistName =
+      _PlaylistName('name', tableName: 'playlist');
+
+  Map<String, dynamic> toMapFromDB() => {'id': id, 'name': name};
   static String get name => 'playlist';
   static String get rawCreate => ExtraQuery.instance.createTable(
         name,
@@ -54,7 +53,6 @@ extension PlaylistQuery on Playlist {
         ConfigSqflite.instance.database,
         IdValue(playlistId, id),
       );
-  Map<String, dynamic> toMapFromDB() => {'id': id, 'name': name};
   Future<void> update() =>
       ExtraQuery.instance.update<int, Playlist, IColumn<Playlist>>(
         name,
@@ -82,7 +80,7 @@ extension PlaylistQuery on Playlist {
   Future<void> insert() => ExtraQuery.instance.insert(
         name,
         ConfigSqflite.instance.database,
-        fields: [PlaylistField.playlistName.str],
+        fields: [PlaylistQuery.playlistName.str],
         values: [name],
       );
   static Future<List<E>>

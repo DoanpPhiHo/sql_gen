@@ -22,6 +22,27 @@ class _TrackName extends IColumn<Track> {
   });
 }
 
+class _TrackAlbumId extends IColumn<Track> {
+  const _TrackAlbumId(
+    super.str, {
+    super.tableName,
+  });
+}
+
+class _TrackMediaTypeId extends IColumn<Track> {
+  const _TrackMediaTypeId(
+    super.str, {
+    super.tableName,
+  });
+}
+
+class _TrackGenresId extends IColumn<Track> {
+  const _TrackGenresId(
+    super.str, {
+    super.tableName,
+  });
+}
+
 class _TrackComposer extends IColumn<Track> {
   const _TrackComposer(
     super.str, {
@@ -50,32 +71,37 @@ class _TrackUnitPrice extends IColumn<Track> {
   });
 }
 
-class _TrackAlbumId extends IColumn<Track> {
-  const _TrackAlbumId(
-    super.str, {
-    super.tableName,
-  });
-}
+Track $TrackFromJsonDB(Map<String, dynamic> json) => Track(
+    id: json['id'] as int ?? 0,
+    name: json['name'] as String,
+    albumId: json['albumId'] as int,
+    mediaTypeId: json['mediaTypeId'] as int,
+    genresId: json['genresId'] as int,
+    composer: json['composer'] as String?,
+    milliseconds: json['milliseconds'] as int,
+    bites: json['bites'] as int,
+    unitPrice: json['unitPrice'] as int);
 
-class _TrackMediaTypeId extends IColumn<Track> {
-  const _TrackMediaTypeId(
-    super.str, {
-    super.tableName,
-  });
-}
+// **************************************************************************
+// ModelGenerator
+// **************************************************************************
 
-class _TrackGenresId extends IColumn<Track> {
-  const _TrackGenresId(
-    super.str, {
-    super.tableName,
-  });
-}
+// ignore_for_file:
 
-extension TrackField on Track {
+extension TrackQuery on Track {
   static const IColumn<Track> trackId = _TrackId('id', tableName: 'track');
 
   static const IColumn<Track> trackName =
       _TrackName('name', tableName: 'track');
+
+  static const IColumn<Track> trackAlbumId =
+      _TrackAlbumId('albumId', tableName: 'track');
+
+  static const IColumn<Track> trackMediaTypeId =
+      _TrackMediaTypeId('mediaTypeId', tableName: 'track');
+
+  static const IColumn<Track> trackGenresId =
+      _TrackGenresId('genresId', tableName: 'track');
 
   static const IColumn<Track> trackComposer =
       _TrackComposer('composer', tableName: 'track');
@@ -89,34 +115,17 @@ extension TrackField on Track {
   static const IColumn<Track> trackUnitPrice =
       _TrackUnitPrice('unitPrice', tableName: 'track');
 
-  static const IColumn<Track> trackAlbumId =
-      _TrackAlbumId('albumId', tableName: 'track');
-
-  static const IColumn<Track> trackMediaTypeId =
-      _TrackMediaTypeId('mediaTypeId', tableName: 'track');
-
-  static const IColumn<Track> trackGenresId =
-      _TrackGenresId('genresId', tableName: 'track');
-}
-
-Track $TrackFromJsonDB(Map<String, dynamic> json) => Track(
-    id: json['id'] as int? ?? 0,
-    name: json['name'] as String,
-    composer: json['composer'] as String?,
-    milliseconds: json['milliseconds'] as int,
-    bites: json['bites'] as int,
-    unitPrice: json['unitPrice'] as int,
-    albumId: json['albumId'] as int,
-    mediaTypeId: json['mediaTypeId'] as int,
-    genresId: json['genresId'] as int);
-
-// **************************************************************************
-// ModelGenerator
-// **************************************************************************
-
-// ignore_for_file:
-
-extension TrackQuery on Track {
+  Map<String, dynamic> toMapFromDB() => {
+        'id': id,
+        'name': name,
+        'albumId': albumId,
+        'mediaTypeId': mediaTypeId,
+        'genresId': genresId,
+        'composer': composer,
+        'milliseconds': milliseconds,
+        'bites': bites,
+        'unitPrice': unitPrice
+      };
   static String get name => 'track';
   static String get rawCreate => ExtraQuery.instance.createTable(
         name,
@@ -138,17 +147,6 @@ extension TrackQuery on Track {
         ConfigSqflite.instance.database,
         IdValue(trackId, id),
       );
-  Map<String, dynamic> toMapFromDB() => {
-        'id': id,
-        'name': name,
-        'composer': composer,
-        'milliseconds': milliseconds,
-        'bites': bites,
-        'unitPrice': unitPrice,
-        'albumId': albumId,
-        'mediaTypeId': mediaTypeId,
-        'genresId': genresId
-      };
   Future<void> update() =>
       ExtraQuery.instance.update<int, Track, IColumn<Track>>(
         name,
@@ -177,14 +175,14 @@ extension TrackQuery on Track {
         name,
         ConfigSqflite.instance.database,
         fields: [
-          TrackField.trackName.str,
-          TrackField.trackComposer.str,
-          TrackField.trackMilliseconds.str,
-          TrackField.trackBites.str,
-          TrackField.trackUnitPrice.str,
-          TrackField.trackAlbumId.str,
-          TrackField.trackMediaTypeId.str,
-          TrackField.trackGenresId.str
+          TrackQuery.trackName.str,
+          TrackQuery.trackComposer.str,
+          TrackQuery.trackMilliseconds.str,
+          TrackQuery.trackBites.str,
+          TrackQuery.trackUnitPrice.str,
+          TrackQuery.trackAlbumId.str,
+          TrackQuery.trackMediaTypeId.str,
+          TrackQuery.trackGenresId.str
         ],
         values: [
           name,

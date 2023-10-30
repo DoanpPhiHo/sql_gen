@@ -22,15 +22,8 @@ class _ArtistName extends IColumn<Artist> {
   });
 }
 
-extension ArtistField on Artist {
-  static const IColumn<Artist> artistId = _ArtistId('id', tableName: 'artist');
-
-  static const IColumn<Artist> artistName =
-      _ArtistName('name', tableName: 'artist');
-}
-
 Artist $ArtistFromJsonDB(Map<String, dynamic> json) =>
-    Artist(id: json['id'] as int? ?? 0, name: json['name'] as String);
+    Artist(id: json['id'] as int ?? 0, name: json['name'] as String);
 
 // **************************************************************************
 // ModelGenerator
@@ -39,6 +32,12 @@ Artist $ArtistFromJsonDB(Map<String, dynamic> json) =>
 // ignore_for_file:
 
 extension ArtistQuery on Artist {
+  static const IColumn<Artist> artistId = _ArtistId('id', tableName: 'artist');
+
+  static const IColumn<Artist> artistName =
+      _ArtistName('name', tableName: 'artist');
+
+  Map<String, dynamic> toMapFromDB() => {'id': id, 'name': name};
   static String get name => 'artist';
   static String get rawCreate => ExtraQuery.instance.createTable(
         name,
@@ -53,7 +52,6 @@ extension ArtistQuery on Artist {
         ConfigSqflite.instance.database,
         IdValue(artistId, id),
       );
-  Map<String, dynamic> toMapFromDB() => {'id': id, 'name': name};
   Future<void> update() =>
       ExtraQuery.instance.update<int, Artist, IColumn<Artist>>(
         name,
@@ -81,7 +79,7 @@ extension ArtistQuery on Artist {
   Future<void> insert() => ExtraQuery.instance.insert(
         name,
         ConfigSqflite.instance.database,
-        fields: [ArtistField.artistName.str],
+        fields: [ArtistQuery.artistName.str],
         values: [name],
       );
   static Future<List<E>>

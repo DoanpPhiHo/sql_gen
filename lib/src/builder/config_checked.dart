@@ -49,7 +49,7 @@ class ModelConfigGen {
   Map<String, dynamic> toMap() => {
         'name': name,
         'imports': imports,
-        'primaryIds': primaryId,
+        'primaryId': primaryId,
         'primaryIdType': primaryIdType,
       };
 

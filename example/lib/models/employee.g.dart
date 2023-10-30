@@ -64,7 +64,23 @@ class _EmployeeAddress extends IColumn<Employee> {
   });
 }
 
-extension EmployeeField on Employee {
+Employee $EmployeeFromJsonDB(Map<String, dynamic> json) => Employee(
+    id: json['id'] as int ?? 0,
+    firstName: json['firstName'] as String,
+    lastName: json['lastName'] as String,
+    title: json['title'] as String,
+    reportsTo: json['reportsTo'] as int?,
+    birthDate: json['birthDate'] as DateTime,
+    hireDate: json['hireDate'] as DateTime,
+    address: json['address'] as String);
+
+// **************************************************************************
+// ModelGenerator
+// **************************************************************************
+
+// ignore_for_file:
+
+extension EmployeeQuery on Employee {
   static const IColumn<Employee> employeeId =
       _EmployeeId('id', tableName: 'employee');
 
@@ -88,25 +104,17 @@ extension EmployeeField on Employee {
 
   static const IColumn<Employee> employeeAddress =
       _EmployeeAddress('address', tableName: 'employee');
-}
 
-Employee $EmployeeFromJsonDB(Map<String, dynamic> json) => Employee(
-    id: json['id'] as int? ?? 0,
-    firstName: json['firstName'] as String,
-    lastName: json['lastName'] as String,
-    title: json['title'] as String,
-    reportsTo: json['reportsTo'] as int?,
-    birthDate: json['birthDate'] as DateTime,
-    hireDate: json['hireDate'] as DateTime,
-    address: json['address'] as String);
-
-// **************************************************************************
-// ModelGenerator
-// **************************************************************************
-
-// ignore_for_file:
-
-extension EmployeeQuery on Employee {
+  Map<String, dynamic> toMapFromDB() => {
+        'id': id,
+        'firstName': firstName,
+        'lastName': lastName,
+        'title': title,
+        'reportsTo': reportsTo,
+        'birthDate': birthDate,
+        'hireDate': hireDate,
+        'address': address
+      };
   static String get name => 'employee';
   static String get rawCreate => ExtraQuery.instance.createTable(
         name,
@@ -127,16 +135,6 @@ extension EmployeeQuery on Employee {
         ConfigSqflite.instance.database,
         IdValue(employeeId, id),
       );
-  Map<String, dynamic> toMapFromDB() => {
-        'id': id,
-        'firstName': firstName,
-        'lastName': lastName,
-        'title': title,
-        'reportsTo': reportsTo,
-        'birthDate': birthDate,
-        'hireDate': hireDate,
-        'address': address
-      };
   Future<void> update() =>
       ExtraQuery.instance.update<int, Employee, IColumn<Employee>>(
         name,
@@ -165,13 +163,13 @@ extension EmployeeQuery on Employee {
         name,
         ConfigSqflite.instance.database,
         fields: [
-          EmployeeField.employeeFirstName.str,
-          EmployeeField.employeeLastName.str,
-          EmployeeField.employeeTitle.str,
-          EmployeeField.employeeReportsTo.str,
-          EmployeeField.employeeBirthDate.str,
-          EmployeeField.employeeHireDate.str,
-          EmployeeField.employeeAddress.str
+          EmployeeQuery.employeeFirstName.str,
+          EmployeeQuery.employeeLastName.str,
+          EmployeeQuery.employeeTitle.str,
+          EmployeeQuery.employeeReportsTo.str,
+          EmployeeQuery.employeeBirthDate.str,
+          EmployeeQuery.employeeHireDate.str,
+          EmployeeQuery.employeeAddress.str
         ],
         values: [
           firstName,

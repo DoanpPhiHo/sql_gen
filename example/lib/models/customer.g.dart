@@ -99,7 +99,28 @@ class _CustomerSupportRepId extends IColumn<Customer> {
   });
 }
 
-extension CustomerField on Customer {
+Customer $CustomerFromJsonDB(Map<String, dynamic> json) => Customer(
+    id: json['id'] as int ?? 0,
+    firstName: json['firstName'] as String,
+    lastName: json['lastName'] as String,
+    company: json['company'] as String?,
+    address: json['address'] as String,
+    city: json['city'] as String,
+    state: json['state'] as String?,
+    country: json['country'] as String,
+    postalCode: json['postalCode'] as String?,
+    phone: json['phone'] as String?,
+    fax: json['fax'] as String?,
+    email: json['email'] as String,
+    supportRepId: json['supportRepId'] as String);
+
+// **************************************************************************
+// ModelGenerator
+// **************************************************************************
+
+// ignore_for_file:
+
+extension CustomerQuery on Customer {
   static const IColumn<Customer> customerId =
       _CustomerId('id', tableName: 'customer');
 
@@ -138,30 +159,22 @@ extension CustomerField on Customer {
 
   static const IColumn<Customer> customerSupportRepId =
       _CustomerSupportRepId('supportRepId', tableName: 'customer');
-}
 
-Customer $CustomerFromJsonDB(Map<String, dynamic> json) => Customer(
-    id: json['id'] as int? ?? 0,
-    firstName: json['firstName'] as String,
-    lastName: json['lastName'] as String,
-    company: json['company'] as String?,
-    address: json['address'] as String,
-    city: json['city'] as String,
-    state: json['state'] as String?,
-    country: json['country'] as String,
-    postalCode: json['postalCode'] as String?,
-    phone: json['phone'] as String?,
-    fax: json['fax'] as String?,
-    email: json['email'] as String,
-    supportRepId: json['supportRepId'] as String);
-
-// **************************************************************************
-// ModelGenerator
-// **************************************************************************
-
-// ignore_for_file:
-
-extension CustomerQuery on Customer {
+  Map<String, dynamic> toMapFromDB() => {
+        'id': id,
+        'firstName': firstName,
+        'lastName': lastName,
+        'company': company,
+        'address': address,
+        'city': city,
+        'state': state,
+        'country': country,
+        'postalCode': postalCode,
+        'phone': phone,
+        'fax': fax,
+        'email': email,
+        'supportRepId': supportRepId
+      };
   static String get name => 'customer';
   static String get rawCreate => ExtraQuery.instance.createTable(
         name,
@@ -187,21 +200,6 @@ extension CustomerQuery on Customer {
         ConfigSqflite.instance.database,
         IdValue(customerId, id),
       );
-  Map<String, dynamic> toMapFromDB() => {
-        'id': id,
-        'firstName': firstName,
-        'lastName': lastName,
-        'company': company,
-        'address': address,
-        'city': city,
-        'state': state,
-        'country': country,
-        'postalCode': postalCode,
-        'phone': phone,
-        'fax': fax,
-        'email': email,
-        'supportRepId': supportRepId
-      };
   Future<void> update() =>
       ExtraQuery.instance.update<int, Customer, IColumn<Customer>>(
         name,
@@ -230,18 +228,18 @@ extension CustomerQuery on Customer {
         name,
         ConfigSqflite.instance.database,
         fields: [
-          CustomerField.customerFirstName.str,
-          CustomerField.customerLastName.str,
-          CustomerField.customerCompany.str,
-          CustomerField.customerAddress.str,
-          CustomerField.customerCity.str,
-          CustomerField.customerState.str,
-          CustomerField.customerCountry.str,
-          CustomerField.customerPostalCode.str,
-          CustomerField.customerPhone.str,
-          CustomerField.customerFax.str,
-          CustomerField.customerEmail.str,
-          CustomerField.customerSupportRepId.str
+          CustomerQuery.customerFirstName.str,
+          CustomerQuery.customerLastName.str,
+          CustomerQuery.customerCompany.str,
+          CustomerQuery.customerAddress.str,
+          CustomerQuery.customerCity.str,
+          CustomerQuery.customerState.str,
+          CustomerQuery.customerCountry.str,
+          CustomerQuery.customerPostalCode.str,
+          CustomerQuery.customerPhone.str,
+          CustomerQuery.customerFax.str,
+          CustomerQuery.customerEmail.str,
+          CustomerQuery.customerSupportRepId.str
         ],
         values: [
           firstName,

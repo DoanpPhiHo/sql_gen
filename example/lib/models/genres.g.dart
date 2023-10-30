@@ -22,15 +22,8 @@ class _GenresName extends IColumn<Genres> {
   });
 }
 
-extension GenresField on Genres {
-  static const IColumn<Genres> genresId = _GenresId('id', tableName: 'genres');
-
-  static const IColumn<Genres> genresName =
-      _GenresName('name', tableName: 'genres');
-}
-
 Genres $GenresFromJsonDB(Map<String, dynamic> json) =>
-    Genres(id: json['id'] as int? ?? 0, name: json['name'] as String);
+    Genres(id: json['id'] as int ?? 0, name: json['name'] as String);
 
 // **************************************************************************
 // ModelGenerator
@@ -39,6 +32,12 @@ Genres $GenresFromJsonDB(Map<String, dynamic> json) =>
 // ignore_for_file:
 
 extension GenresQuery on Genres {
+  static const IColumn<Genres> genresId = _GenresId('id', tableName: 'genres');
+
+  static const IColumn<Genres> genresName =
+      _GenresName('name', tableName: 'genres');
+
+  Map<String, dynamic> toMapFromDB() => {'id': id, 'name': name};
   static String get name => 'genres';
   static String get rawCreate => ExtraQuery.instance.createTable(
         name,
@@ -53,7 +52,6 @@ extension GenresQuery on Genres {
         ConfigSqflite.instance.database,
         IdValue(genresId, id),
       );
-  Map<String, dynamic> toMapFromDB() => {'id': id, 'name': name};
   Future<void> update() =>
       ExtraQuery.instance.update<int, Genres, IColumn<Genres>>(
         name,
@@ -81,7 +79,7 @@ extension GenresQuery on Genres {
   Future<void> insert() => ExtraQuery.instance.insert(
         name,
         ConfigSqflite.instance.database,
-        fields: [GenresField.genresName.str],
+        fields: [GenresQuery.genresName.str],
         values: [name],
       );
   static Future<List<E>>

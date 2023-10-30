@@ -15,6 +15,13 @@ class _InvoiceId extends IColumn<Invoice> {
   });
 }
 
+class _InvoiceCustomerId extends IColumn<Invoice> {
+  const _InvoiceCustomerId(
+    super.str, {
+    super.tableName,
+  });
+}
+
 class _InvoiceInvoiceDate extends IColumn<Invoice> {
   const _InvoiceInvoiceDate(
     super.str, {
@@ -64,16 +71,29 @@ class _InvoiceTotal extends IColumn<Invoice> {
   });
 }
 
-class _InvoiceCustomerId extends IColumn<Invoice> {
-  const _InvoiceCustomerId(
-    super.str, {
-    super.tableName,
-  });
-}
+Invoice $InvoiceFromJsonDB(Map<String, dynamic> json) => Invoice(
+    id: json['id'] as int ?? 0,
+    customerId: json['customerId'] as int,
+    invoiceDate: json['invoiceDate'] as int,
+    billingAddress: json['billingAddress'] as String,
+    billingState: json['billingState'] as String?,
+    billingPostalCode: json['billingPostalCode'] as String?,
+    billingCountry: json['billingCountry'] as String,
+    billingCity: json['billingCity'] as String,
+    total: json['total'] as double);
 
-extension InvoiceField on Invoice {
+// **************************************************************************
+// ModelGenerator
+// **************************************************************************
+
+// ignore_for_file:
+
+extension InvoiceQuery on Invoice {
   static const IColumn<Invoice> invoiceId =
       _InvoiceId('id', tableName: 'invoice');
+
+  static const IColumn<Invoice> invoiceCustomerId =
+      _InvoiceCustomerId('customerId', tableName: 'invoice');
 
   static const IColumn<Invoice> invoiceInvoiceDate =
       _InvoiceInvoiceDate('invoiceDate', tableName: 'invoice');
@@ -96,28 +116,17 @@ extension InvoiceField on Invoice {
   static const IColumn<Invoice> invoiceTotal =
       _InvoiceTotal('total', tableName: 'invoice');
 
-  static const IColumn<Invoice> invoiceCustomerId =
-      _InvoiceCustomerId('customerId', tableName: 'invoice');
-}
-
-Invoice $InvoiceFromJsonDB(Map<String, dynamic> json) => Invoice(
-    id: json['id'] as int? ?? 0,
-    invoiceDate: json['invoiceDate'] as int,
-    billingAddress: json['billingAddress'] as String,
-    billingState: json['billingState'] as String?,
-    billingPostalCode: json['billingPostalCode'] as String?,
-    billingCountry: json['billingCountry'] as String,
-    billingCity: json['billingCity'] as String,
-    total: json['total'] as double,
-    customerId: json['customerId'] as int);
-
-// **************************************************************************
-// ModelGenerator
-// **************************************************************************
-
-// ignore_for_file:
-
-extension InvoiceQuery on Invoice {
+  Map<String, dynamic> toMapFromDB() => {
+        'id': id,
+        'customerId': customerId,
+        'invoiceDate': invoiceDate,
+        'billingAddress': billingAddress,
+        'billingState': billingState,
+        'billingPostalCode': billingPostalCode,
+        'billingCountry': billingCountry,
+        'billingCity': billingCity,
+        'total': total
+      };
   static String get name => 'invoice';
   static String get rawCreate => ExtraQuery.instance.createTable(
         name,
@@ -139,17 +148,6 @@ extension InvoiceQuery on Invoice {
         ConfigSqflite.instance.database,
         IdValue(invoiceId, id),
       );
-  Map<String, dynamic> toMapFromDB() => {
-        'id': id,
-        'invoiceDate': invoiceDate,
-        'billingAddress': billingAddress,
-        'billingState': billingState,
-        'billingPostalCode': billingPostalCode,
-        'billingCountry': billingCountry,
-        'billingCity': billingCity,
-        'total': total,
-        'customerId': customerId
-      };
   Future<void> update() =>
       ExtraQuery.instance.update<int, Invoice, IColumn<Invoice>>(
         name,
@@ -178,14 +176,14 @@ extension InvoiceQuery on Invoice {
         name,
         ConfigSqflite.instance.database,
         fields: [
-          InvoiceField.invoiceInvoiceDate.str,
-          InvoiceField.invoiceBillingAddress.str,
-          InvoiceField.invoiceBillingState.str,
-          InvoiceField.invoiceBillingPostalCode.str,
-          InvoiceField.invoiceBillingCountry.str,
-          InvoiceField.invoiceBillingCity.str,
-          InvoiceField.invoiceTotal.str,
-          InvoiceField.invoiceCustomerId.str
+          InvoiceQuery.invoiceInvoiceDate.str,
+          InvoiceQuery.invoiceBillingAddress.str,
+          InvoiceQuery.invoiceBillingState.str,
+          InvoiceQuery.invoiceBillingPostalCode.str,
+          InvoiceQuery.invoiceBillingCountry.str,
+          InvoiceQuery.invoiceBillingCity.str,
+          InvoiceQuery.invoiceTotal.str,
+          InvoiceQuery.invoiceCustomerId.str
         ],
         values: [
           invoiceDate,

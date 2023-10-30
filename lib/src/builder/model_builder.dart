@@ -16,6 +16,10 @@ class ModelGenerator extends GeneratorForAnnotation<ModelSql> {
   @override
   generateForAnnotatedElement(
       Element element, ConstantReader annotation, BuildStep buildStep) async {
+    if (element is! ClassElement) return;
+    final gBuilder =
+        await ClassGBuilder.fromElement(element, annotation, buildStep);
+
     final injectableConfigFiles = Glob("**/**.sql_model.json");
     final jsonData = <Map>[];
     await for (final id in buildStep.findAssets(injectableConfigFiles)) {
@@ -26,11 +30,35 @@ class ModelGenerator extends GeneratorForAnnotation<ModelSql> {
 
     final className = annotation.peek('name')?.stringValue;
     final exName = '${element.displayName}Query';
-    final exNameField = '${element.displayName}Field';
+    final exNameField = '${element.displayName}Query';
     final extensionBuilder = Extension((e) {
       e
         ..on = refer(element.displayName)
         ..name = exName
+        ..fields.addAll([
+          for (final field in gBuilder.all)
+            Field(
+              (f) => f
+                ..name = field.nameClassConst
+                ..static = true
+                ..type = refer('const IColumn<${gBuilder.className}>')
+                ..assignment = Code(
+                    '${field.nameClass}(\'${field.nameSql}\',tableName:\'${gBuilder.tName}\')'),
+            ),
+        ])
+        ..methods.add(
+          Method(
+            (f) => f
+              ..name = 'toMapFromDB'
+              ..lambda = true
+              ..returns = refer('Map<String,dynamic>')
+              ..body = Code(
+                '''{
+                ${[for (final s in gBuilder.all) s.rawToJson].join(',')}
+              }''',
+              ),
+          ),
+        )
         ..methods
             .addAll(_buildExtensions(element, className, exNameField, configs));
     });
@@ -136,24 +164,6 @@ class ModelGenerator extends GeneratorForAnnotation<ModelSql> {
               ),
           ),
         //#endregion ================= delete =====================
-        //#region ================= toMapFromDB =====================
-        Method(
-          (f) => f
-            ..name = 'toMapFromDB'
-            ..lambda = true
-            ..returns = refer('Map<String,dynamic>')
-            ..body = Code(
-              '''{
-                ${[
-                for (final s in fs)
-                  s is! ForeignBuilder
-                      ? '\'${s.name}\':${s.toJson != null ? '${s.toJson}(${s.name})' : s.name}'
-                      : '\'${s.name}\':${s.name}?.${s.toJson != null ? '${s.toJson}' : s.name}'
-              ].join(',')}
-              }''',
-            ),
-        ),
-        //#endregion ================= update =====================
         //#region ================= update =====================
         if (primaryKeyBuilder != null)
           Method(

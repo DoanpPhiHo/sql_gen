@@ -30,6 +30,13 @@ class _ExampleModelId extends IColumn<ExampleModel> {
   });
 }
 
+class _ExampleModelName extends IColumn<ExampleModel> {
+  const _ExampleModelName(
+    super.str, {
+    super.tableName,
+  });
+}
+
 class _ExampleModelPassportId extends IColumn<ExampleModel> {
   const _ExampleModelPassportId(
     super.str, {
@@ -58,16 +65,26 @@ class _ExampleModelSex extends IColumn<ExampleModel> {
   });
 }
 
-class _ExampleModelName extends IColumn<ExampleModel> {
-  const _ExampleModelName(
-    super.str, {
-    super.tableName,
-  });
-}
+ExampleModel $ExampleModelFromJsonDB(Map<String, dynamic> json) => ExampleModel(
+    id: json['id'] as int,
+    name: json['name'] as String,
+    passportId: json['passportId'] as String,
+    age: json['age'] as int? ?? 10,
+    region: json['region'] as int?,
+    sex: $fromJsonSex(json['sex']));
 
-extension ExampleModelField on ExampleModel {
+// **************************************************************************
+// ModelGenerator
+// **************************************************************************
+
+// ignore_for_file:
+
+extension ExampleModelQuery on ExampleModel {
   static const IColumn<ExampleModel> exampleModelId =
       _ExampleModelId('id', tableName: 'example');
+
+  static const IColumn<ExampleModel> exampleModelName =
+      _ExampleModelName('name', tableName: 'example');
 
   static const IColumn<ExampleModel> exampleModelPassportId =
       _ExampleModelPassportId('passportId', tableName: 'example');
@@ -81,25 +98,14 @@ extension ExampleModelField on ExampleModel {
   static const IColumn<ExampleModel> exampleModelSex =
       _ExampleModelSex('sex', tableName: 'example');
 
-  static const IColumn<ExampleModel> exampleModelName =
-      _ExampleModelName('name', tableName: 'example');
-}
-
-ExampleModel $ExampleModelFromJsonDB(Map<String, dynamic> json) => ExampleModel(
-    id: json['id'] as int,
-    passportId: json['passportId'] as String,
-    age: json['age'] as int? ?? 10,
-    region: json['region'] as int? ?? 4454,
-    sex: $fromJsonSex(json['sex'] as String?) ?? Sex.male,
-    name: json['name'] as String);
-
-// **************************************************************************
-// ModelGenerator
-// **************************************************************************
-
-// ignore_for_file:
-
-extension ExampleModelQuery on ExampleModel {
+  Map<String, dynamic> toMapFromDB() => {
+        'id': id,
+        'name': name,
+        'passportId': passportId,
+        'age': age,
+        'region': region,
+        'sex': $toJsonSex(sex)
+      };
   static String get name => 'example';
   static String get rawCreate => ExtraQuery.instance.createTable(
         name,
@@ -118,14 +124,6 @@ extension ExampleModelQuery on ExampleModel {
         ConfigSqflite.instance.database,
         IdValue(exampleModelId, id),
       );
-  Map<String, dynamic> toMapFromDB() => {
-        'id': id,
-        'passportId': passportId,
-        'age': age,
-        'region': region,
-        'sex': $toJsonSex(sex),
-        'name': name
-      };
   Future<void> update() =>
       ExtraQuery.instance.update<int, ExampleModel, IColumn<ExampleModel>>(
         name,
@@ -156,11 +154,11 @@ extension ExampleModelQuery on ExampleModel {
         name,
         ConfigSqflite.instance.database,
         fields: [
-          ExampleModelField.exampleModelPassportId.str,
-          ExampleModelField.exampleModelAge.str,
-          ExampleModelField.exampleModelRegion.str,
-          ExampleModelField.exampleModelSex.str,
-          ExampleModelField.exampleModelName.str
+          ExampleModelQuery.exampleModelPassportId.str,
+          ExampleModelQuery.exampleModelAge.str,
+          ExampleModelQuery.exampleModelRegion.str,
+          ExampleModelQuery.exampleModelSex.str,
+          ExampleModelQuery.exampleModelName.str
         ],
         values: [passportId, age, region, sex, name],
       );

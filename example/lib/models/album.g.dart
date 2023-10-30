@@ -29,20 +29,12 @@ class _AlbumArtist extends IColumn<Album> {
   });
 }
 
-extension AlbumField on Album {
-  static const IColumn<Album> albumId = _AlbumId('id', tableName: 'album');
-
-  static const IColumn<Album> albumTitle =
-      _AlbumTitle('title', tableName: 'album');
-
-  static const IColumn<Album> albumArtist =
-      _AlbumArtist('artistId', tableName: 'album');
-}
-
 Album $AlbumFromJsonDB(Map<String, dynamic> json) => Album(
-    id: json['id'] as int? ?? 0,
+    id: json['id'] as int ?? 0,
     title: json['title'] as String,
-    artistId: int.fromJsonDB(json['artistId'] as Map<String, dynamic>));
+    artist: json['artist'] != null
+        ? Artist.fromJsonDB(json['artist'] as Map<String, dynamic>)
+        : null);
 
 // **************************************************************************
 // ModelGenerator
@@ -51,14 +43,24 @@ Album $AlbumFromJsonDB(Map<String, dynamic> json) => Album(
 // ignore_for_file:
 
 extension AlbumQuery on Album {
+  static const IColumn<Album> albumId = _AlbumId('id', tableName: 'album');
+
+  static const IColumn<Album> albumTitle =
+      _AlbumTitle('title', tableName: 'album');
+
+  static const IColumn<Album> albumArtist =
+      _AlbumArtist('artistId', tableName: 'album');
+
+  Map<String, dynamic> toMapFromDB() =>
+      {'id': id, 'title': title, 'artistId': artist?.id};
   static String get name => 'album';
-// 'FOREIGN KEY (artistId) REFERENCES hhhhh (hhhhhh)  ON NO ACTION'
+// 'FOREIGN KEY (artistId) REFERENCES hhhhh (hhhhhh) ON NO ACTION ON NO ACTION'
   static String get rawCreate => ExtraQuery.instance.createTable(
         name,
         fields: [
           'id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL',
           'title TEXT NOT NULL',
-          'artistId TEXT NOT NULL',
+          'artistId TEXT',
         ],
       );
   Future<void> delete() =>
@@ -67,8 +69,6 @@ extension AlbumQuery on Album {
         ConfigSqflite.instance.database,
         IdValue(albumId, id),
       );
-  Map<String, dynamic> toMapFromDB() =>
-      {'id': id, 'title': title, 'artistId': artistId?.$toMapArtist};
   Future<void> update() =>
       ExtraQuery.instance.update<int, Album, IColumn<Album>>(
         name,
@@ -96,7 +96,7 @@ extension AlbumQuery on Album {
   Future<void> insert() => ExtraQuery.instance.insert(
         name,
         ConfigSqflite.instance.database,
-        fields: [AlbumField.albumTitle.str, AlbumField.albumArtist.str],
+        fields: [AlbumQuery.albumTitle.str, AlbumQuery.albumArtist.str],
         values: [title, artistId],
       );
   static Future<List<E>>
