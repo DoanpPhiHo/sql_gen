@@ -3,6 +3,7 @@ import 'package:analyzer/dart/element/element.dart';
 import 'package:analyzer/dart/element/nullability_suffix.dart';
 import 'package:analyzer/dart/element/type.dart';
 import 'package:db_sql_annotation/db_sql_annotation.dart';
+import 'package:db_sql_generator/src/builder/config_checked.dart';
 import 'package:source_gen/source_gen.dart';
 
 part 'field_extension.dart';

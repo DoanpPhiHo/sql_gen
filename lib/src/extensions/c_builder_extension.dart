@@ -1,14 +1,22 @@
 part of 'extensions.dart';
 
 extension CBuilderX on CBuilder {
-  String get fromJsonStr {
-    if (fromJson != null) {
-      return '$fromJson(json[\'$name\'] as String?)';
+  String fromJsonStr(Map<String, dynamic> valueFromConstructor) {
+    final v = valueStr(valueFromConstructor);
+    if (this is ForeignBuilder) {
+      return '${typeDart.replaceFirst('?', '')}.fromJsonDB(json[\'$name\'] as Map<String,dynamic>) $v';
     }
-    return 'json[\'$name\'] as $typeDart';
+    if (fromJson != null) {
+      return '$fromJson(json[\'$name\'] as String?) $v';
+    }
+    String s = typeDart;
+    if (!s.contains('?') && v.isNotEmpty) {
+      s += '?';
+    }
+    return 'json[\'$name\'] as $s $v';
   }
 
-  dynamic valueStr(Map<String, dynamic> valueFromConstructor) {
+  String valueStr(Map<String, dynamic> valueFromConstructor) {
     try {
       var value = valueFromConstructor[name];
       if (this is EnumeratedBuilder && value == null) {

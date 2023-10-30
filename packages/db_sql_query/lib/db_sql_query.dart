@@ -2,8 +2,10 @@ library db_sql_query;
 
 import 'dart:developer';
 
+import 'package:db_sql_annotation/db_sql_annotation.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
+
 export 'package:sqflite/sqflite.dart';
 export 'package:db_sql_annotation/db_sql_annotation.dart';
 

@@ -1,20 +1,5 @@
 part of '../db_sql_query.dart';
 
-abstract class ITable {
-  final String? tableName;
-
-  const ITable({this.tableName});
-}
-
-abstract class IColumn<T> extends ITable {
-  final String str;
-
-  const IColumn(this.str, {super.tableName});
-
-  @override
-  String toString() => str;
-}
-
 class Count<E, T extends IColumn<E>> extends IColumn<E> {
   Count(this.field) : super('COUNT(${field._s})', tableName: field.tableName);
   final T field;

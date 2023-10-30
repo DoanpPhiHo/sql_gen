@@ -1,9 +1,13 @@
+import 'dart:convert';
+
 import 'package:analyzer/dart/element/element.dart';
 import 'package:build/build.dart';
 import 'package:code_builder/code_builder.dart';
 import 'package:dart_style/dart_style.dart';
 import 'package:db_sql_annotation/db_sql_annotation.dart';
+import 'package:db_sql_generator/src/builder/config_checked.dart';
 import 'package:db_sql_generator/src/extensions/extensions.dart';
+import 'package:glob/glob.dart';
 import 'package:source_gen/source_gen.dart';
 
 const _analyzerIgnores = '// ignore_for_file: ';
@@ -11,90 +15,35 @@ const _analyzerIgnores = '// ignore_for_file: ';
 class ModelGenerator extends GeneratorForAnnotation<ModelSql> {
   @override
   generateForAnnotatedElement(
-      Element element, ConstantReader annotation, BuildStep buildStep) {
-    final lstClassBuilder = _buildListClass(element);
+      Element element, ConstantReader annotation, BuildStep buildStep) async {
+    final injectableConfigFiles = Glob("**/**.sql_model.json");
+    final jsonData = <Map>[];
+    await for (final id in buildStep.findAssets(injectableConfigFiles)) {
+      final json = jsonDecode(await buildStep.readAsString(id));
+      jsonData.addAll([...json]);
+    }
+    final configs = jsonData.map((e) => ModelConfigGen.fromJson(e)).toList();
 
     final className = annotation.peek('name')?.stringValue;
     final exName = '${element.displayName}Query';
+    final exNameField = '${element.displayName}Field';
     final extensionBuilder = Extension((e) {
       e
         ..on = refer(element.displayName)
         ..name = exName
-        ..methods.addAll(_buildExtensions(element, className, exName))
-        ..fields.addAll([]);
+        ..methods
+            .addAll(_buildExtensions(element, className, exNameField, configs));
     });
-
-    final functionFromJsonBuilder = _buildMethodFromJson(element, className);
 
     final emitter = DartEmitter(useNullSafetySyntax: true);
     return DartFormatter().format([
       _analyzerIgnores,
-      for (final s in lstClassBuilder) s.accept(emitter),
       extensionBuilder.accept(emitter),
-      functionFromJsonBuilder.accept(emitter),
     ].join('\n\n'));
   }
 
-  List<Class> _buildListClass(Element element) {
-    try {
-      if (element is! ClassElement) throw Exception('not class');
-      final eClass = element;
-      final fields = eClass.fields;
-      final className = eClass.displayName;
-
-      final primaryKeyBuilder = fields.primaryKeyField(className);
-
-      final columns = fields.columnFields(className);
-
-      final enums = fields.enumFields(className);
-
-      final indexLst = fields.indexFields(className);
-
-      final fs = [
-        if (primaryKeyBuilder != null) primaryKeyBuilder,
-        ...columns,
-        ...enums,
-        ...indexLst,
-      ];
-      return fs
-          .map((e) => Class((c) {
-                c
-                  ..name = e.nameClass
-                  ..extend = Reference('IColumn<$className>')
-                  ..constructors.add(Constructor((cb) {
-                    cb
-                      ..constant = true
-                      ..requiredParameters.add(
-                        Parameter(
-                          (p) {
-                            p
-                              ..name = 'str'
-                              ..toSuper = true;
-                          },
-                        ),
-                      )
-                      ..optionalParameters.add(
-                        Parameter(
-                          (p) {
-                            p
-                              ..name = 'tableName'
-                              ..required = false
-                              ..named = true
-                              ..toSuper = true;
-                          },
-                        ),
-                      );
-                  }));
-              }))
-          .toList();
-    } catch (e) {
-      print(e);
-    }
-    return [];
-  }
-
-  List<Method> _buildExtensions(
-      Element element, String? tableName, String extensionName) {
+  List<Method> _buildExtensions(Element element, String? tableName,
+      String extensionName, List<ModelConfigGen> configs) {
     try {
       if (element is! ClassElement) throw Exception('not class');
 
@@ -114,6 +63,8 @@ class ModelGenerator extends GeneratorForAnnotation<ModelSql> {
 
       final columns = fields.columnFields(className);
 
+      final foreignKeys = fields.foreignFields(className, configs);
+
       final enums = fields.enumFields(className);
 
       final indexLst = fields.indexFields(className);
@@ -123,11 +74,13 @@ class ModelGenerator extends GeneratorForAnnotation<ModelSql> {
         ...columns,
         ...enums,
         ...indexLst,
+        ...foreignKeys,
       ];
       final fsInsert = [
         ...columns,
         ...enums,
         ...indexLst,
+        ...foreignKeys,
       ];
 
       return [
@@ -142,32 +95,27 @@ class ModelGenerator extends GeneratorForAnnotation<ModelSql> {
             ..body = Code('\'$eTableName\''),
         ),
         //#endregion ================= name =====================
-        //#region ================= fields =====================
-        for (final field in fs)
-          Method(
-            (f) => f
-              ..name = field.nameClassConst
-              ..type = MethodType.getter
-              ..static = true
-              ..lambda = true
-              ..returns = refer('IColumn<$className>')
-              ..body = Code(
-                  'const ${field.nameClass}(\'${field.name}\',tableName:\'$eTableName\')'),
-          ),
-        //#endregion ================= name =====================
-        //#region ================= rawCreate =====================
         Method(
           (f) => f
             ..name = 'rawCreate'
             ..type = MethodType.getter
             ..lambda = true
             ..static = true
+            ..docs.addAll([
+              for (final f in foreignKeys)
+                '// \'FOREIGN KEY (${f.nameParam}) REFERENCES hhhhh (hhhhhh) ${f.onDelete == null ? '' : 'ON ${f.onDelete!.str}'} ${f.onUpdate == null ? '' : 'ON ${f.onUpdate!.str}'}\''
+            ])
             ..returns = refer('String')
             ..body = Code(
               '''ExtraQuery.instance.createTable(
                 name,
                 fields:[
-                ${[for (final f in fs) '\'${f.name} ${f.param}\''].join(',')}
+                ${[for (final f in fs) '\'${f.name} ${f.param}\''].join(',')},
+                ${[
+                '',
+                // for (final f in foreignKeys)
+                //   '\'FOREIGN KEY (${f.name}) REFERENCES ${f.value.tableName} (${f.value.str}) ${f.onDelete == null ? '' : 'ON ${f.onDelete!.str}'} ${f.onUpdate == null ? '' : 'ON ${f.onUpdate!.str}'}\''
+              ].join(',')}
               ],)''',
             ),
         ),
@@ -198,7 +146,9 @@ class ModelGenerator extends GeneratorForAnnotation<ModelSql> {
               '''{
                 ${[
                 for (final s in fs)
-                  '\'${s.name}\':${s.toJson != null ? '${s.toJson}(${s.name})' : s.name}'
+                  s is! ForeignBuilder
+                      ? '\'${s.name}\':${s.toJson != null ? '${s.toJson}(${s.name})' : s.name}'
+                      : '\'${s.name}\':${s.name}?.${s.toJson != null ? '${s.toJson}' : s.name}'
               ].join(',')}
               }''',
             ),
@@ -242,7 +192,7 @@ class ModelGenerator extends GeneratorForAnnotation<ModelSql> {
                 '''ExtraQuery.instance.findOneById<int, $className, IColumn<$className>>(
                 name,
                 ConfigSqflite.instance.database,
-                IdValue(${primaryKeyBuilder.nameClassConst}, ${primaryKeyBuilder.name}),
+                IdValue(${primaryKeyBuilder.nameClassConst}, id),
                 parser: (e) => $className.fromJsonDB(e),
               )''',
               ),
@@ -458,7 +408,7 @@ class ModelGenerator extends GeneratorForAnnotation<ModelSql> {
           ..lambda = true
           ..type = MethodType.getter
           ..returns = refer('String')
-          ..body = Code('\'DROP TABLE IF EXISTS $tableName\'')),
+          ..body = Code('ExtraQuery.instance.dropTable(name)')),
         //#endregion ================= rawDropTable =====================
       ];
     } catch (e) {
@@ -467,60 +417,7 @@ class ModelGenerator extends GeneratorForAnnotation<ModelSql> {
     }
   }
 
-  Method _buildMethodFromJson(Element element, String? tableName) {
-    try {
-      if (element is! ClassElement) throw Exception('not class');
-
-      /// class Table
-      final eClass = element;
-
-      /// fields in class Table
-      final fields = eClass.fields.cast<FieldElement>();
-
-      /// class name
-      final className = element.displayName;
-
-      final primaryKeyBuilder = fields.primaryKeyField(className);
-
-      final columns = fields.columnFields(className);
-
-      final enums = fields.enumFields(className);
-
-      final indexLst = fields.indexFields(className);
-
-      final valueDefaults = _buildField(element);
-
-      final fs = [
-        if (primaryKeyBuilder != null) primaryKeyBuilder,
-        ...columns,
-        ...enums,
-        ...indexLst,
-      ];
-
-      return Method((m) {
-        m
-          ..name = '\$${className}FromJsonDB'
-          ..lambda = true
-          ..body = Code('''
-            $className(
-              ${[
-            for (final s in fs)
-              '''${s.name}:${s.fromJsonStr} ${s.valueStr(valueDefaults)}'''
-          ].join(',')}
-            );''')
-          ..requiredParameters.add(Parameter((p) {
-            p
-              ..name = 'json'
-              ..type = refer('Map<String,dynamic>');
-          }))
-          ..returns = refer(className);
-      });
-    } catch (e) {
-      rethrow;
-    }
-  }
-
-  Map<String, dynamic> _buildField(Element element) {
+  Map<String, dynamic> getDefaultValue(Element element) {
     try {
       if (element is! ClassElement) throw Exception('not class');
       final eClass = element;

@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'dog.dart';
+part of 'media_type.dart';
 
 // **************************************************************************
 // FieldGenerator
@@ -8,50 +8,30 @@ part of 'dog.dart';
 
 // ignore_for_file:
 
-class _DogId extends IColumn<Dog> {
-  const _DogId(
+class _MediaTypeId extends IColumn<MediaType> {
+  const _MediaTypeId(
     super.str, {
     super.tableName,
   });
 }
 
-class _DogName extends IColumn<Dog> {
-  const _DogName(
+class _MediaTypeName extends IColumn<MediaType> {
+  const _MediaTypeName(
     super.str, {
     super.tableName,
   });
 }
 
-class _DogAge extends IColumn<Dog> {
-  const _DogAge(
-    super.str, {
-    super.tableName,
-  });
+extension MediaTypeField on MediaType {
+  static const IColumn<MediaType> mediaTypeId =
+      _MediaTypeId('id', tableName: 'media_type');
+
+  static const IColumn<MediaType> mediaTypeName =
+      _MediaTypeName('name', tableName: 'media_type');
 }
 
-class _DogCategory extends IColumn<Dog> {
-  const _DogCategory(
-    super.str, {
-    super.tableName,
-  });
-}
-
-extension DogField on Dog {
-  static const IColumn<Dog> dogId = _DogId('id', tableName: 'dog');
-
-  static const IColumn<Dog> dogName = _DogName('name', tableName: 'dog');
-
-  static const IColumn<Dog> dogAge = _DogAge('age', tableName: 'dog');
-
-  static const IColumn<Dog> dogCategory =
-      _DogCategory('category', tableName: 'dog');
-}
-
-Dog $DogFromJsonDB(Map<String, dynamic> json) => Dog(
-    id: json['id'] as int? ?? 0,
-    name: json['name'] as String,
-    age: json['age'] as int?,
-    category: json['category'] as int);
+MediaType $MediaTypeFromJsonDB(Map<String, dynamic> json) =>
+    MediaType(id: json['id'] as int? ?? 0, name: json['name'] as String);
 
 // **************************************************************************
 // ModelGenerator
@@ -59,59 +39,54 @@ Dog $DogFromJsonDB(Map<String, dynamic> json) => Dog(
 
 // ignore_for_file:
 
-extension DogQuery on Dog {
-  static String get name => 'dog';
+extension MediaTypeQuery on MediaType {
+  static String get name => 'media_type';
   static String get rawCreate => ExtraQuery.instance.createTable(
         name,
         fields: [
           'id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL',
           'name TEXT NOT NULL',
-          'age INTEGER',
-          'category INTEGER NOT NULL',
         ],
       );
-  Future<void> delete() => ExtraQuery.instance.delete<int, Dog, IColumn<Dog>>(
+  Future<void> delete() =>
+      ExtraQuery.instance.delete<int, MediaType, IColumn<MediaType>>(
         name,
         ConfigSqflite.instance.database,
-        IdValue(dogId, id),
+        IdValue(mediaTypeId, id),
       );
-  Map<String, dynamic> toMapFromDB() =>
-      {'id': id, 'name': name, 'age': age, 'category': category};
-  Future<void> update() => ExtraQuery.instance.update<int, Dog, IColumn<Dog>>(
+  Map<String, dynamic> toMapFromDB() => {'id': id, 'name': name};
+  Future<void> update() =>
+      ExtraQuery.instance.update<int, MediaType, IColumn<MediaType>>(
         name,
         ConfigSqflite.instance.database,
         map: toMapFromDB(),
-        IdValue(dogId, id),
+        IdValue(mediaTypeId, id),
       );
-  static Future<Dog?> findOneById(int id) =>
-      ExtraQuery.instance.findOneById<int, Dog, IColumn<Dog>>(
+  static Future<MediaType?> findOneById(int id) =>
+      ExtraQuery.instance.findOneById<int, MediaType, IColumn<MediaType>>(
         name,
         ConfigSqflite.instance.database,
-        IdValue(dogId, id),
-        parser: (e) => Dog.fromJsonDB(e),
+        IdValue(mediaTypeId, id),
+        parser: (e) => MediaType.fromJsonDB(e),
       );
-  static Future<Dog?> findOne() => ExtraQuery.instance.findOne<Dog>(
+  static Future<MediaType?> findOne() => ExtraQuery.instance.findOne<MediaType>(
         name,
         ConfigSqflite.instance.database,
-        parser: (e) => Dog.fromJsonDB(e),
+        parser: (e) => MediaType.fromJsonDB(e),
       );
-  static Future<List<Dog>> find() => ExtraQuery.instance.find<Dog>(
+  static Future<List<MediaType>> find() => ExtraQuery.instance.find<MediaType>(
         name,
         ConfigSqflite.instance.database,
-        parser: (e) => Dog.fromJsonDB(e),
+        parser: (e) => MediaType.fromJsonDB(e),
       );
   Future<void> insert() => ExtraQuery.instance.insert(
         name,
         ConfigSqflite.instance.database,
-        fields: [
-          DogField.dogName.str,
-          DogField.dogAge.str,
-          DogField.dogCategory.str
-        ],
-        values: [name, age, category],
+        fields: [MediaTypeField.mediaTypeName.str],
+        values: [name],
       );
   static Future<List<E>>
-      rawQuery<E, T extends IColumn<Dog>, F, TF extends IColumn<F>>({
+      rawQuery<E, T extends IColumn<MediaType>, F, TF extends IColumn<F>>({
     List<T> select = const [],
     List<T> groupBy = const [],
     List<T> oderByByHaving = const [],
@@ -125,7 +100,7 @@ extension DogQuery on Dog {
     required E Function(Map<String, Object?>) parser,
     bool logQuery = true,
   }) =>
-          ExtraQuery.instance.rawQuery<E, Dog, T, F, TF>(
+          ExtraQuery.instance.rawQuery<E, MediaType, T, F, TF>(
             name,
             ConfigSqflite.instance.database,
             parser: parser,

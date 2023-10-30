@@ -92,6 +92,7 @@ class ExtraQuery {
       '''CREATE TABLE IF NOT EXISTS $table(
           ${fields.join(',\n')}
         )''';
+  String dropTable(String table) => 'DROP TABLE IF NOT EXISTS $table';
 
   Future<void> insert(
     String table,

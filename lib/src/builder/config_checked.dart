@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:analyzer/dart/element/element.dart';
 import 'package:build/build.dart';
 import 'package:db_sql_annotation/db_sql_annotation.dart';
+import 'package:db_sql_generator/src/extensions/extensions.dart';
 import 'package:source_gen/source_gen.dart';
 
 const TypeChecker _typeChecker = TypeChecker.fromRuntime(ModelSql);
@@ -35,20 +36,28 @@ class ConfigChecked implements Generator {
 class ModelConfigGen {
   final String name;
   final List<String> imports;
+  final String? primaryId;
+  final String? primaryIdType;
 
   ModelConfigGen(
     this.name,
     this.imports,
+    this.primaryId,
+    this.primaryIdType,
   );
 
   Map<String, dynamic> toMap() => {
         'name': name,
         'imports': imports,
+        'primaryIds': primaryId,
+        'primaryIdType': primaryIdType,
       };
 
   factory ModelConfigGen.fromJson(Map<dynamic, dynamic> json) => ModelConfigGen(
         json['name'] as String,
         (json['imports'] as List).cast<String>(),
+        json['primaryId'] as String?,
+        json['primaryIdType'] as String?,
       );
 
   factory ModelConfigGen.fromLibs(List<LibraryElement> libs, ClassElement cl) {
@@ -57,6 +66,12 @@ class ModelConfigGen {
     return ModelConfigGen(
       cl.displayName,
       s.map((e) => e.identifier).toList(),
+      cl.fields.cast<FieldElement>().primaryKeyField(cl.displayName)?.name,
+      cl.fields
+          .cast<FieldElement>()
+          .primaryKeyField(cl.displayName)
+          ?.typeRunner
+          .toString(),
     );
   }
 }

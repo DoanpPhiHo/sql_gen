@@ -3,9 +3,32 @@ import 'dart:math';
 
 import 'package:db_sql_query/db_sql_query.dart';
 import 'package:example/db.dart';
+import 'package:example/db/init/customers.dart';
+import 'package:example/db/init/employees.dart';
+import 'package:example/db/init/genres.dart';
+import 'package:example/db/init/invoice.dart';
+import 'package:example/db/init/invoice_items.dart';
+import 'package:example/db/init/media_types.dart';
+import 'package:example/db/init/playlist_tracks.dart';
+import 'package:example/db/init/playlists.dart';
+import 'package:example/db/init/tracks.dart';
 import 'package:example/dog.dart';
 import 'package:example/dog_category.dart';
+import 'package:example/models/album.dart';
+import 'package:example/models/artist.dart';
+import 'package:example/models/customer.dart';
+import 'package:example/models/employee.dart';
+import 'package:example/models/genres.dart';
+import 'package:example/models/invoice.dart';
+import 'package:example/models/invoice_item.dart';
+import 'package:example/models/media_type.dart';
+import 'package:example/models/playlist.dart';
+import 'package:example/models/playlist_track.dart';
+import 'package:example/models/track.dart';
 import 'package:flutter/material.dart';
+
+import 'db/init/albums.dart';
+import 'db/init/artists.dart';
 
 void main() async {
   await runZonedGuarded<Future<void>>(
@@ -44,6 +67,42 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   List<Dog> _dogs = [];
+
+  void initChinookDB() async {
+    for (final i in albums) {
+      await i.insert();
+    }
+    for (final i in artists) {
+      await i.insert();
+    }
+    for (final i in customers) {
+      await i.insert();
+    }
+    for (final i in employees) {
+      await i.insert();
+    }
+    for (final i in genres) {
+      await i.insert();
+    }
+    for (final i in invoiceItems) {
+      await i.insert();
+    }
+    for (final i in invoices) {
+      await i.insert();
+    }
+    for (final i in mediaTypes) {
+      await i.insert();
+    }
+    for (final i in playlistTracks) {
+      await i.insert();
+    }
+    for (final i in playlists) {
+      await i.insert();
+    }
+    for (final i in tracks) {
+      await i.insert();
+    }
+  }
 
   void _loadDogs() async {
     final dogs = await DogQuery.find();
@@ -164,11 +223,11 @@ class _MyHomePageState extends State<MyHomePage> {
                 final dogs = await DogQuery.rawQuery(
                   parser: (e) => Dog.fromJsonDB(e),
                   select: [
-                    DogQuery.dogId,
-                    DogQuery.dogAge,
-                    DogQuery.dogName,
-                    DogQuery.dogCategory,
-                    Rename<Dog, IColumn<Dog>>(Count(DogQuery.dogAge), 'count'),
+                    DogField.dogId,
+                    DogField.dogAge,
+                    DogField.dogName,
+                    DogField.dogCategory,
+                    Rename<Dog, IColumn<Dog>>(Count(DogField.dogAge), 'count'),
                   ],
                   // where: [
                   //   WhereValue(dogAge, 214),
@@ -184,20 +243,20 @@ class _MyHomePageState extends State<MyHomePage> {
                   innerJoin: [
                     InnerJoin(
                       select: [
-                        DogCategoryQuery.dogCategoryName,
+                        DogCategoryField.dogCategoryName,
                       ],
                       where: [
                         EqualValue<DogCategory, IColumn<DogCategory>,
                             IColumn<Dog>>(
-                          DogCategoryQuery.dogCategoryId,
-                          DogQuery.dogCategory,
+                          DogCategoryField.dogCategoryId,
+                          DogField.dogCategory,
                         ),
                       ],
                     )
                   ],
                   limit: 100,
                   offset: 0,
-                  groupBy: [DogQuery.dogCategory],
+                  groupBy: [DogField.dogCategory],
                 );
                 setState(() {
                   _dogs = dogs;

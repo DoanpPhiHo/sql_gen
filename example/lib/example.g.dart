@@ -18,7 +18,7 @@ String? $toJsonSex(Sex? value) {
 }
 
 // **************************************************************************
-// ModelGenerator
+// FieldGenerator
 // **************************************************************************
 
 // ignore_for_file:
@@ -65,20 +65,42 @@ class _ExampleModelName extends IColumn<ExampleModel> {
   });
 }
 
+extension ExampleModelField on ExampleModel {
+  static const IColumn<ExampleModel> exampleModelId =
+      _ExampleModelId('id', tableName: 'example');
+
+  static const IColumn<ExampleModel> exampleModelPassportId =
+      _ExampleModelPassportId('passportId', tableName: 'example');
+
+  static const IColumn<ExampleModel> exampleModelAge =
+      _ExampleModelAge('age', tableName: 'example');
+
+  static const IColumn<ExampleModel> exampleModelRegion =
+      _ExampleModelRegion('region', tableName: 'example');
+
+  static const IColumn<ExampleModel> exampleModelSex =
+      _ExampleModelSex('sex', tableName: 'example');
+
+  static const IColumn<ExampleModel> exampleModelName =
+      _ExampleModelName('name', tableName: 'example');
+}
+
+ExampleModel $ExampleModelFromJsonDB(Map<String, dynamic> json) => ExampleModel(
+    id: json['id'] as int,
+    passportId: json['passportId'] as String,
+    age: json['age'] as int? ?? 10,
+    region: json['region'] as int? ?? 4454,
+    sex: $fromJsonSex(json['sex'] as String?) ?? Sex.male,
+    name: json['name'] as String);
+
+// **************************************************************************
+// ModelGenerator
+// **************************************************************************
+
+// ignore_for_file:
+
 extension ExampleModelQuery on ExampleModel {
   static String get name => 'example';
-  static IColumn<ExampleModel> get exampleModelId =>
-      const _ExampleModelId('id', tableName: 'example');
-  static IColumn<ExampleModel> get exampleModelPassportId =>
-      const _ExampleModelPassportId('passportId', tableName: 'example');
-  static IColumn<ExampleModel> get exampleModelAge =>
-      const _ExampleModelAge('age', tableName: 'example');
-  static IColumn<ExampleModel> get exampleModelRegion =>
-      const _ExampleModelRegion('region', tableName: 'example');
-  static IColumn<ExampleModel> get exampleModelSex =>
-      const _ExampleModelSex('sex', tableName: 'example');
-  static IColumn<ExampleModel> get exampleModelName =>
-      const _ExampleModelName('name', tableName: 'example');
   static String get rawCreate => ExtraQuery.instance.createTable(
         name,
         fields: [
@@ -87,7 +109,7 @@ extension ExampleModelQuery on ExampleModel {
           'age INTEGER',
           'region INTEGER',
           'sex TEXT',
-          'name TEXT NOT NULL'
+          'name TEXT NOT NULL',
         ],
       );
   Future<void> delete() =>
@@ -134,11 +156,11 @@ extension ExampleModelQuery on ExampleModel {
         name,
         ConfigSqflite.instance.database,
         fields: [
-          ExampleModelQuery.exampleModelPassportId.str,
-          ExampleModelQuery.exampleModelAge.str,
-          ExampleModelQuery.exampleModelRegion.str,
-          ExampleModelQuery.exampleModelSex.str,
-          ExampleModelQuery.exampleModelName.str
+          ExampleModelField.exampleModelPassportId.str,
+          ExampleModelField.exampleModelAge.str,
+          ExampleModelField.exampleModelRegion.str,
+          ExampleModelField.exampleModelSex.str,
+          ExampleModelField.exampleModelName.str
         ],
         values: [passportId, age, region, sex, name],
       );
@@ -173,13 +195,5 @@ extension ExampleModelQuery on ExampleModel {
             select: select,
             where: where,
           );
-  static String get rawDropTable => 'DROP TABLE IF EXISTS example';
+  static String get rawDropTable => ExtraQuery.instance.dropTable(name);
 }
-
-ExampleModel $ExampleModelFromJsonDB(Map<String, dynamic> json) => ExampleModel(
-    id: json['id'] as int,
-    passportId: json['passportId'] as String,
-    age: json['age'] as int? ?? 10,
-    region: json['region'] as int? ?? 4454,
-    sex: $fromJsonSex(json['sex'] as String?) ?? Sex.male,
-    name: json['name'] as String);

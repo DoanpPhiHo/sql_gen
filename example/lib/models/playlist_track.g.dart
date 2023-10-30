@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'dog.dart';
+part of 'playlist_track.dart';
 
 // **************************************************************************
 // FieldGenerator
@@ -8,50 +8,32 @@ part of 'dog.dart';
 
 // ignore_for_file:
 
-class _DogId extends IColumn<Dog> {
-  const _DogId(
+class _PlaylistTrackPlaylistId extends IColumn<PlaylistTrack> {
+  const _PlaylistTrackPlaylistId(
     super.str, {
     super.tableName,
   });
 }
 
-class _DogName extends IColumn<Dog> {
-  const _DogName(
+class _PlaylistTrackTrackId extends IColumn<PlaylistTrack> {
+  const _PlaylistTrackTrackId(
     super.str, {
     super.tableName,
   });
 }
 
-class _DogAge extends IColumn<Dog> {
-  const _DogAge(
-    super.str, {
-    super.tableName,
-  });
+extension PlaylistTrackField on PlaylistTrack {
+  static const IColumn<PlaylistTrack> playlistTrackPlaylistId =
+      _PlaylistTrackPlaylistId('playlistId', tableName: 'playlist_track');
+
+  static const IColumn<PlaylistTrack> playlistTrackTrackId =
+      _PlaylistTrackTrackId('trackId', tableName: 'playlist_track');
 }
 
-class _DogCategory extends IColumn<Dog> {
-  const _DogCategory(
-    super.str, {
-    super.tableName,
-  });
-}
-
-extension DogField on Dog {
-  static const IColumn<Dog> dogId = _DogId('id', tableName: 'dog');
-
-  static const IColumn<Dog> dogName = _DogName('name', tableName: 'dog');
-
-  static const IColumn<Dog> dogAge = _DogAge('age', tableName: 'dog');
-
-  static const IColumn<Dog> dogCategory =
-      _DogCategory('category', tableName: 'dog');
-}
-
-Dog $DogFromJsonDB(Map<String, dynamic> json) => Dog(
-    id: json['id'] as int? ?? 0,
-    name: json['name'] as String,
-    age: json['age'] as int?,
-    category: json['category'] as int);
+PlaylistTrack $PlaylistTrackFromJsonDB(Map<String, dynamic> json) =>
+    PlaylistTrack(
+        playlistId: json['playlistId'] as int? ?? 0,
+        trackId: json['trackId'] as int);
 
 // **************************************************************************
 // ModelGenerator
@@ -59,59 +41,57 @@ Dog $DogFromJsonDB(Map<String, dynamic> json) => Dog(
 
 // ignore_for_file:
 
-extension DogQuery on Dog {
-  static String get name => 'dog';
+extension PlaylistTrackQuery on PlaylistTrack {
+  static String get name => 'playlist_track';
   static String get rawCreate => ExtraQuery.instance.createTable(
         name,
         fields: [
-          'id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL',
-          'name TEXT NOT NULL',
-          'age INTEGER',
-          'category INTEGER NOT NULL',
+          'playlistId INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL',
+          'trackId INTEGER NOT NULL',
         ],
       );
-  Future<void> delete() => ExtraQuery.instance.delete<int, Dog, IColumn<Dog>>(
+  Future<void> delete() =>
+      ExtraQuery.instance.delete<int, PlaylistTrack, IColumn<PlaylistTrack>>(
         name,
         ConfigSqflite.instance.database,
-        IdValue(dogId, id),
+        IdValue(playlistTrackPlaylistId, playlistId),
       );
   Map<String, dynamic> toMapFromDB() =>
-      {'id': id, 'name': name, 'age': age, 'category': category};
-  Future<void> update() => ExtraQuery.instance.update<int, Dog, IColumn<Dog>>(
+      {'playlistId': playlistId, 'trackId': trackId};
+  Future<void> update() =>
+      ExtraQuery.instance.update<int, PlaylistTrack, IColumn<PlaylistTrack>>(
         name,
         ConfigSqflite.instance.database,
         map: toMapFromDB(),
-        IdValue(dogId, id),
+        IdValue(playlistTrackPlaylistId, playlistId),
       );
-  static Future<Dog?> findOneById(int id) =>
-      ExtraQuery.instance.findOneById<int, Dog, IColumn<Dog>>(
+  static Future<PlaylistTrack?> findOneById(int id) => ExtraQuery.instance
+          .findOneById<int, PlaylistTrack, IColumn<PlaylistTrack>>(
         name,
         ConfigSqflite.instance.database,
-        IdValue(dogId, id),
-        parser: (e) => Dog.fromJsonDB(e),
+        IdValue(playlistTrackPlaylistId, id),
+        parser: (e) => PlaylistTrack.fromJsonDB(e),
       );
-  static Future<Dog?> findOne() => ExtraQuery.instance.findOne<Dog>(
+  static Future<PlaylistTrack?> findOne() =>
+      ExtraQuery.instance.findOne<PlaylistTrack>(
         name,
         ConfigSqflite.instance.database,
-        parser: (e) => Dog.fromJsonDB(e),
+        parser: (e) => PlaylistTrack.fromJsonDB(e),
       );
-  static Future<List<Dog>> find() => ExtraQuery.instance.find<Dog>(
+  static Future<List<PlaylistTrack>> find() =>
+      ExtraQuery.instance.find<PlaylistTrack>(
         name,
         ConfigSqflite.instance.database,
-        parser: (e) => Dog.fromJsonDB(e),
+        parser: (e) => PlaylistTrack.fromJsonDB(e),
       );
   Future<void> insert() => ExtraQuery.instance.insert(
         name,
         ConfigSqflite.instance.database,
-        fields: [
-          DogField.dogName.str,
-          DogField.dogAge.str,
-          DogField.dogCategory.str
-        ],
-        values: [name, age, category],
+        fields: [PlaylistTrackField.playlistTrackTrackId.str],
+        values: [trackId],
       );
   static Future<List<E>>
-      rawQuery<E, T extends IColumn<Dog>, F, TF extends IColumn<F>>({
+      rawQuery<E, T extends IColumn<PlaylistTrack>, F, TF extends IColumn<F>>({
     List<T> select = const [],
     List<T> groupBy = const [],
     List<T> oderByByHaving = const [],
@@ -125,7 +105,7 @@ extension DogQuery on Dog {
     required E Function(Map<String, Object?>) parser,
     bool logQuery = true,
   }) =>
-          ExtraQuery.instance.rawQuery<E, Dog, T, F, TF>(
+          ExtraQuery.instance.rawQuery<E, PlaylistTrack, T, F, TF>(
             name,
             ConfigSqflite.instance.database,
             parser: parser,

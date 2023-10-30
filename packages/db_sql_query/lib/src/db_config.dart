@@ -7,6 +7,8 @@ class ConfigSqflite {
   Future<void> configSqflite(
     String dbName, {
     required List<String> raws,
+    List<String> rawForeign = const [],
+    List<String> seeded = const [],
     int version = -1,
   }) async {
     database = openDatabase(
