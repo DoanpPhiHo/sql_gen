@@ -1,14 +1,12 @@
 import 'package:db_sql_query/db_sql_query.dart';
 
-import 'config_sqflite.dart';
-
 part 'example.g.dart';
 
 @enumeratedSql
 enum Sex { male, female }
 
 @ModelSql(name: 'example')
-class ExampleModel {
+class ExampleModel extends ITable {
   @primaryKeyAuto
   final int id;
   @index

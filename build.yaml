@@ -7,6 +7,8 @@ targets:
         enabled: true
       config_builder:
         enabled: true
+      injectable_builder:
+        enabled: true
 
 builders:
   model_builder:
@@ -26,7 +28,14 @@ builders:
   config_builder:
     import: "package:db_sql_generator/builder.dart"
     builder_factories: ["configBuilder"]
-    build_extensions: { ".dart": [".config_builder.g.part"] }
+    build_extensions: { ".dart": [".config.dart"] }
+    auto_apply: dependents
+    build_to: source
+    applies_builders: ["source_gen|combining_builder"]
+  injectable_builder:
+    import: "package:db_sql_generator/builder.dart"
+    builder_factories: ["injectableBuilder"]
+    runs_before: ["db_sql_generator|config_builder"]
+    build_extensions: { ".dart": [".sql_model.json"] }
     auto_apply: dependents
     build_to: cache
-    applies_builders: ["source_gen|combining_builder"]

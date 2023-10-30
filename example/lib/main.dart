@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:db_sql_query/db_sql_query.dart';
-import 'package:example/config_sqflite.dart';
+import 'package:example/db.dart';
 import 'package:example/dog.dart';
 import 'package:example/dog_category.dart';
 import 'package:flutter/material.dart';
@@ -11,7 +11,7 @@ void main() async {
   await runZonedGuarded<Future<void>>(
     () async {
       WidgetsFlutterBinding.ensureInitialized();
-      await ConfigSqflite.instance.configSqflite();
+      await configSql();
       runApp(const MyApp());
     },
     (error, stack) {},
@@ -144,7 +144,7 @@ class _MyHomePageState extends State<MyHomePage> {
               onPressed: () async {
                 await Future.wait([
                   for (int i = 0; i < 5; i++)
-                    DogCategory(name: 'name $i').insertAuto()
+                    DogCategory(name: 'name $i').insert()
                 ]);
               },
               child: const Text('init cate'),
@@ -162,13 +162,13 @@ class _MyHomePageState extends State<MyHomePage> {
             TextButton(
               onPressed: () async {
                 final dogs = await DogQuery.rawQuery(
-                  parser: (e) => Dog.fromJson(e),
+                  parser: (e) => Dog.fromJsonDB(e),
                   select: [
-                    dogId,
-                    dogAge,
-                    dogName,
-                    dogCategory,
-                    Rename<Dog, IColumn<Dog>>(Count(dogAge), 'count'),
+                    DogQuery.dogId,
+                    DogQuery.dogAge,
+                    DogQuery.dogName,
+                    DogQuery.dogCategory,
+                    Rename<Dog, IColumn<Dog>>(Count(DogQuery.dogAge), 'count'),
                   ],
                   // where: [
                   //   WhereValue(dogAge, 214),
@@ -184,20 +184,20 @@ class _MyHomePageState extends State<MyHomePage> {
                   innerJoin: [
                     InnerJoin(
                       select: [
-                        dogCategoryName,
+                        DogCategoryQuery.dogCategoryName,
                       ],
                       where: [
                         EqualValue<DogCategory, IColumn<DogCategory>,
                             IColumn<Dog>>(
-                          dogCategoryId,
-                          dogCategory,
+                          DogCategoryQuery.dogCategoryId,
+                          DogQuery.dogCategory,
                         ),
                       ],
                     )
                   ],
                   limit: 100,
                   offset: 0,
-                  groupBy: [dogCategory],
+                  groupBy: [DogQuery.dogCategory],
                 );
                 setState(() {
                   _dogs = dogs;
@@ -212,7 +212,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       'me' * (Random().nextInt(4) + 1).toInt(),
                   age: (Random().nextInt(20) + 7).toInt(),
                   category: (Random().nextInt(2) + 1).toInt(),
-                ).insertAuto();
+                ).insert();
               },
               child: const Text('insert random'),
             ),

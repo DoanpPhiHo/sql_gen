@@ -326,6 +326,7 @@ class ModelGenerator extends GeneratorForAnnotation<ModelSql> {
             ..name =
                 'rawQuery<E,T extends IColumn<$className>, F, TF extends IColumn<F>>'
             ..lambda = true
+            ..static = true
             ..returns = refer('Future<List<E>>')
             ..optionalParameters.addAll([
               Parameter(

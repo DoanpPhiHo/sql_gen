@@ -1,6 +1,6 @@
 part of '../db_sql_annotation.dart';
 
-// TODO(hodoan): doing ConfigSqflite.instance.database, test query
+// TODO(hodoan): doing test query
 
 class ModelSqlGenerated<T extends ModelSql> {
   const ModelSqlGenerated();
@@ -8,8 +8,9 @@ class ModelSqlGenerated<T extends ModelSql> {
 
 class SqlConfig {
   final String dbName;
+  final int version;
 
-  const SqlConfig(this.dbName);
+  const SqlConfig(this.dbName, {required this.version});
 }
 
 class ModelSql {
