@@ -30,7 +30,7 @@ class _AlbumArtist extends IColumn<Album> {
 }
 
 Album $AlbumFromJsonDB(Map<String, dynamic> json) => Album(
-    id: json['id'] as int ?? 0,
+    id: json['id'] as int? ?? 0,
     title: json['title'] as String,
     artist: json['artist'] != null
         ? Artist.fromJsonDB(json['artist'] as Map<String, dynamic>)
@@ -53,16 +53,16 @@ extension AlbumQuery on Album {
 
   Map<String, dynamic> toMapFromDB() =>
       {'id': id, 'title': title, 'artistId': artist?.id};
-  static String get name => 'album';
-// 'FOREIGN KEY (artistId) REFERENCES hhhhh (hhhhhh) ON NO ACTION ON NO ACTION'
   static String get rawCreate => ExtraQuery.instance.createTable(
         name,
         fields: [
-          'id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL',
-          'title TEXT NOT NULL',
-          'artistId TEXT',
+          'id INTEGER  PRIMARY KEY AUTOINCREMENT',
+          'title TEXT',
+          'artistId int NOT NULL',
+          'FOREIGN KEY (artistId) REFERENCES artist (id) ON DELETE NO ACTION ON UPDATE NO ACTION'
         ],
       );
+  static String get name => 'album';
   Future<void> delete() =>
       ExtraQuery.instance.delete<int, Album, IColumn<Album>>(
         name,
@@ -97,7 +97,7 @@ extension AlbumQuery on Album {
         name,
         ConfigSqflite.instance.database,
         fields: [AlbumQuery.albumTitle.str, AlbumQuery.albumArtist.str],
-        values: [title, artistId],
+        values: [title, artist?.id],
       );
   static Future<List<E>>
       rawQuery<E, T extends IColumn<Album>, F, TF extends IColumn<F>>({

@@ -29,8 +29,8 @@ class Customer extends ITable {
   @column
   final String email;
   // employeeId
-  @column
-  final String supportRepId;
+  @ForeignKey(name: 'supportRepId')
+  final Customer? supportRep;
 
   Customer({
     this.id = 0,
@@ -45,7 +45,7 @@ class Customer extends ITable {
     this.phone,
     this.postalCode,
     this.state,
-    required this.supportRepId,
+    this.supportRep,
   });
 
   factory Customer.fromJsonDB(Map<String, dynamic> json) =>

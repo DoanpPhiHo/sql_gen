@@ -65,7 +65,7 @@ class _EmployeeAddress extends IColumn<Employee> {
 }
 
 Employee $EmployeeFromJsonDB(Map<String, dynamic> json) => Employee(
-    id: json['id'] as int ?? 0,
+    id: json['id'] as int? ?? 0,
     firstName: json['firstName'] as String,
     lastName: json['lastName'] as String,
     title: json['title'] as String,
@@ -115,20 +115,20 @@ extension EmployeeQuery on Employee {
         'hireDate': hireDate,
         'address': address
       };
-  static String get name => 'employee';
   static String get rawCreate => ExtraQuery.instance.createTable(
         name,
         fields: [
-          'id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL',
-          'firstName TEXT NOT NULL',
-          'lastName TEXT NOT NULL',
-          'title TEXT NOT NULL',
-          'reportsTo INTEGER',
-          'birthDate INTEGER NOT NULL',
-          'hireDate INTEGER NOT NULL',
-          'address TEXT NOT NULL',
+          'id INTEGER  PRIMARY KEY AUTOINCREMENT',
+          'firstName TEXT',
+          'lastName TEXT',
+          'title TEXT',
+          'reportsTo INTEGER NOT NULL',
+          'birthDate INTEGER',
+          'hireDate INTEGER',
+          'address TEXT'
         ],
       );
+  static String get name => 'employee';
   Future<void> delete() =>
       ExtraQuery.instance.delete<int, Employee, IColumn<Employee>>(
         name,

@@ -39,6 +39,7 @@ import 'package:example/dog.dart';
 Future<void> $configSql() => ConfigSqflite.instance.configSqflite(
       'doggie_database.db',
       raws: [
+        'PRAGMA foreign_keys = ON;',
         DogCategoryQuery.rawCreate,
         InvoiceItemQuery.rawCreate,
         InvoiceQuery.rawCreate,

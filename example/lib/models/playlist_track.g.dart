@@ -24,7 +24,7 @@ class _PlaylistTrackTrackId extends IColumn<PlaylistTrack> {
 
 PlaylistTrack $PlaylistTrackFromJsonDB(Map<String, dynamic> json) =>
     PlaylistTrack(
-        playlistId: json['playlistId'] as int ?? 0,
+        playlistId: json['playlistId'] as int? ?? 0,
         trackId: json['trackId'] as int);
 
 // **************************************************************************
@@ -42,14 +42,14 @@ extension PlaylistTrackQuery on PlaylistTrack {
 
   Map<String, dynamic> toMapFromDB() =>
       {'playlistId': playlistId, 'trackId': trackId};
-  static String get name => 'playlist_track';
   static String get rawCreate => ExtraQuery.instance.createTable(
         name,
         fields: [
-          'playlistId INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL',
-          'trackId INTEGER NOT NULL',
+          'playlistId INTEGER  PRIMARY KEY AUTOINCREMENT',
+          'trackId INTEGER'
         ],
       );
+  static String get name => 'playlist_track';
   Future<void> delete() =>
       ExtraQuery.instance.delete<int, PlaylistTrack, IColumn<PlaylistTrack>>(
         name,

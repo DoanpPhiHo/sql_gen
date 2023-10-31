@@ -15,13 +15,6 @@ class _InvoiceId extends IColumn<Invoice> {
   });
 }
 
-class _InvoiceCustomerId extends IColumn<Invoice> {
-  const _InvoiceCustomerId(
-    super.str, {
-    super.tableName,
-  });
-}
-
 class _InvoiceInvoiceDate extends IColumn<Invoice> {
   const _InvoiceInvoiceDate(
     super.str, {
@@ -71,16 +64,25 @@ class _InvoiceTotal extends IColumn<Invoice> {
   });
 }
 
+class _InvoiceCustomer extends IColumn<Invoice> {
+  const _InvoiceCustomer(
+    super.str, {
+    super.tableName,
+  });
+}
+
 Invoice $InvoiceFromJsonDB(Map<String, dynamic> json) => Invoice(
-    id: json['id'] as int ?? 0,
-    customerId: json['customerId'] as int,
+    id: json['id'] as int? ?? 0,
     invoiceDate: json['invoiceDate'] as int,
     billingAddress: json['billingAddress'] as String,
     billingState: json['billingState'] as String?,
     billingPostalCode: json['billingPostalCode'] as String?,
     billingCountry: json['billingCountry'] as String,
     billingCity: json['billingCity'] as String,
-    total: json['total'] as double);
+    total: json['total'] as double,
+    customer: json['customer'] != null
+        ? Customer.fromJsonDB(json['customer'] as Map<String, dynamic>)
+        : null);
 
 // **************************************************************************
 // ModelGenerator
@@ -91,9 +93,6 @@ Invoice $InvoiceFromJsonDB(Map<String, dynamic> json) => Invoice(
 extension InvoiceQuery on Invoice {
   static const IColumn<Invoice> invoiceId =
       _InvoiceId('id', tableName: 'invoice');
-
-  static const IColumn<Invoice> invoiceCustomerId =
-      _InvoiceCustomerId('customerId', tableName: 'invoice');
 
   static const IColumn<Invoice> invoiceInvoiceDate =
       _InvoiceInvoiceDate('invoiceDate', tableName: 'invoice');
@@ -116,32 +115,36 @@ extension InvoiceQuery on Invoice {
   static const IColumn<Invoice> invoiceTotal =
       _InvoiceTotal('total', tableName: 'invoice');
 
+  static const IColumn<Invoice> invoiceCustomer =
+      _InvoiceCustomer('customerId', tableName: 'invoice');
+
   Map<String, dynamic> toMapFromDB() => {
         'id': id,
-        'customerId': customerId,
         'invoiceDate': invoiceDate,
         'billingAddress': billingAddress,
         'billingState': billingState,
         'billingPostalCode': billingPostalCode,
         'billingCountry': billingCountry,
         'billingCity': billingCity,
-        'total': total
+        'total': total,
+        'customerId': customer?.id
       };
-  static String get name => 'invoice';
   static String get rawCreate => ExtraQuery.instance.createTable(
         name,
         fields: [
-          'id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL',
-          'invoiceDate INTEGER NOT NULL',
-          'billingAddress TEXT NOT NULL',
-          'billingState TEXT',
-          'billingPostalCode TEXT',
-          'billingCountry TEXT NOT NULL',
-          'billingCity TEXT NOT NULL',
-          'total REAL NOT NULL',
-          'customerId INTEGER NOT NULL',
+          'id INTEGER  PRIMARY KEY AUTOINCREMENT',
+          'invoiceDate INTEGER',
+          'billingAddress TEXT',
+          'billingState TEXT NOT NULL',
+          'billingPostalCode TEXT NOT NULL',
+          'billingCountry TEXT',
+          'billingCity TEXT',
+          'total REAL',
+          'customerId int NOT NULL',
+          'FOREIGN KEY (customerId) REFERENCES customer (id)'
         ],
       );
+  static String get name => 'invoice';
   Future<void> delete() =>
       ExtraQuery.instance.delete<int, Invoice, IColumn<Invoice>>(
         name,
@@ -183,7 +186,7 @@ extension InvoiceQuery on Invoice {
           InvoiceQuery.invoiceBillingCountry.str,
           InvoiceQuery.invoiceBillingCity.str,
           InvoiceQuery.invoiceTotal.str,
-          InvoiceQuery.invoiceCustomerId.str
+          InvoiceQuery.invoiceCustomer.str
         ],
         values: [
           invoiceDate,
@@ -193,7 +196,7 @@ extension InvoiceQuery on Invoice {
           billingCountry,
           billingCity,
           total,
-          customerId
+          customer?.id
         ],
       );
   static Future<List<E>>

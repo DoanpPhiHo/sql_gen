@@ -106,18 +106,18 @@ extension ExampleModelQuery on ExampleModel {
         'region': region,
         'sex': $toJsonSex(sex)
       };
-  static String get name => 'example';
   static String get rawCreate => ExtraQuery.instance.createTable(
         name,
         fields: [
-          'id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL',
-          'passportId TEXT NOT NULL',
-          'age INTEGER',
-          'region INTEGER',
-          'sex TEXT',
-          'name TEXT NOT NULL',
+          'id INTEGER  PRIMARY KEY AUTOINCREMENT',
+          'name TEXT',
+          'passportId TEXT',
+          'age INTEGER NOT NULL',
+          'region INTEGER NOT NULL',
+          'sex TEXT NOT NULL'
         ],
       );
+  static String get name => 'example';
   Future<void> delete() =>
       ExtraQuery.instance.delete<int, ExampleModel, IColumn<ExampleModel>>(
         name,
@@ -154,13 +154,13 @@ extension ExampleModelQuery on ExampleModel {
         name,
         ConfigSqflite.instance.database,
         fields: [
+          ExampleModelQuery.exampleModelName.str,
           ExampleModelQuery.exampleModelPassportId.str,
           ExampleModelQuery.exampleModelAge.str,
           ExampleModelQuery.exampleModelRegion.str,
-          ExampleModelQuery.exampleModelSex.str,
-          ExampleModelQuery.exampleModelName.str
+          ExampleModelQuery.exampleModelSex.str
         ],
-        values: [passportId, age, region, sex, name],
+        values: [name, passportId, age, region, $toJsonSex(sex)],
       );
   static Future<List<E>>
       rawQuery<E, T extends IColumn<ExampleModel>, F, TF extends IColumn<F>>({

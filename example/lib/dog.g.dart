@@ -37,10 +37,12 @@ class _DogCategory extends IColumn<Dog> {
 }
 
 Dog $DogFromJsonDB(Map<String, dynamic> json) => Dog(
-    id: json['id'] as int ?? 0,
+    id: json['id'] as int? ?? 0,
     name: json['name'] as String,
     age: json['age'] as int?,
-    category: json['category'] as int);
+    category: json['category'] != null
+        ? DogCategory.fromJsonDB(json['category'] as Map<String, dynamic>)
+        : null);
 
 // **************************************************************************
 // ModelGenerator
@@ -56,20 +58,21 @@ extension DogQuery on Dog {
   static const IColumn<Dog> dogAge = _DogAge('age', tableName: 'dog');
 
   static const IColumn<Dog> dogCategory =
-      _DogCategory('category', tableName: 'dog');
+      _DogCategory('categoryId', tableName: 'dog');
 
   Map<String, dynamic> toMapFromDB() =>
-      {'id': id, 'name': name, 'age': age, 'category': category};
-  static String get name => 'dog';
+      {'id': id, 'name': name, 'age': age, 'categoryId': category?.id};
   static String get rawCreate => ExtraQuery.instance.createTable(
         name,
         fields: [
-          'id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL',
-          'name TEXT NOT NULL',
-          'age INTEGER',
-          'category INTEGER NOT NULL',
+          'id INTEGER  PRIMARY KEY AUTOINCREMENT',
+          'name TEXT',
+          'age INTEGER NOT NULL',
+          'categoryId int NOT NULL',
+          'FOREIGN KEY (categoryId) REFERENCES category (id)'
         ],
       );
+  static String get name => 'dog';
   Future<void> delete() => ExtraQuery.instance.delete<int, Dog, IColumn<Dog>>(
         name,
         ConfigSqflite.instance.database,
@@ -106,7 +109,7 @@ extension DogQuery on Dog {
           DogQuery.dogAge.str,
           DogQuery.dogCategory.str
         ],
-        values: [name, age, category],
+        values: [name, age, category?.id],
       );
   static Future<List<E>>
       rawQuery<E, T extends IColumn<Dog>, F, TF extends IColumn<F>>({

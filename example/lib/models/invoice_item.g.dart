@@ -15,20 +15,6 @@ class _InvoiceItemId extends IColumn<InvoiceItem> {
   });
 }
 
-class _InvoiceItemInvoiceId extends IColumn<InvoiceItem> {
-  const _InvoiceItemInvoiceId(
-    super.str, {
-    super.tableName,
-  });
-}
-
-class _InvoiceItemTrackId extends IColumn<InvoiceItem> {
-  const _InvoiceItemTrackId(
-    super.str, {
-    super.tableName,
-  });
-}
-
 class _InvoiceItemUnitPrice extends IColumn<InvoiceItem> {
   const _InvoiceItemUnitPrice(
     super.str, {
@@ -43,12 +29,30 @@ class _InvoiceItemQuantity extends IColumn<InvoiceItem> {
   });
 }
 
+class _InvoiceItemInvoice extends IColumn<InvoiceItem> {
+  const _InvoiceItemInvoice(
+    super.str, {
+    super.tableName,
+  });
+}
+
+class _InvoiceItemTrack extends IColumn<InvoiceItem> {
+  const _InvoiceItemTrack(
+    super.str, {
+    super.tableName,
+  });
+}
+
 InvoiceItem $InvoiceItemFromJsonDB(Map<String, dynamic> json) => InvoiceItem(
-    id: json['id'] as int ?? 0,
-    invoiceId: json['invoiceId'] as int,
-    trackId: json['trackId'] as int,
+    id: json['id'] as int? ?? 0,
     unitPrice: json['unitPrice'] as int,
-    quantity: json['quantity'] as int);
+    quantity: json['quantity'] as int,
+    invoice: json['invoice'] != null
+        ? Invoice.fromJsonDB(json['invoice'] as Map<String, dynamic>)
+        : null,
+    track: json['track'] != null
+        ? Track.fromJsonDB(json['track'] as Map<String, dynamic>)
+        : null);
 
 // **************************************************************************
 // ModelGenerator
@@ -60,36 +64,38 @@ extension InvoiceItemQuery on InvoiceItem {
   static const IColumn<InvoiceItem> invoiceItemId =
       _InvoiceItemId('id', tableName: 'invoice_item');
 
-  static const IColumn<InvoiceItem> invoiceItemInvoiceId =
-      _InvoiceItemInvoiceId('invoiceId', tableName: 'invoice_item');
-
-  static const IColumn<InvoiceItem> invoiceItemTrackId =
-      _InvoiceItemTrackId('trackId', tableName: 'invoice_item');
-
   static const IColumn<InvoiceItem> invoiceItemUnitPrice =
       _InvoiceItemUnitPrice('unitPrice', tableName: 'invoice_item');
 
   static const IColumn<InvoiceItem> invoiceItemQuantity =
       _InvoiceItemQuantity('quantity', tableName: 'invoice_item');
 
+  static const IColumn<InvoiceItem> invoiceItemInvoice =
+      _InvoiceItemInvoice('invoiceId', tableName: 'invoice_item');
+
+  static const IColumn<InvoiceItem> invoiceItemTrack =
+      _InvoiceItemTrack('trackId', tableName: 'invoice_item');
+
   Map<String, dynamic> toMapFromDB() => {
         'id': id,
-        'invoiceId': invoiceId,
-        'trackId': trackId,
         'unitPrice': unitPrice,
-        'quantity': quantity
+        'quantity': quantity,
+        'invoiceId': invoice?.id,
+        'trackId': track?.id
       };
-  static String get name => 'invoice_item';
   static String get rawCreate => ExtraQuery.instance.createTable(
         name,
         fields: [
-          'id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL',
-          'unitPrice INTEGER NOT NULL',
-          'quantity INTEGER NOT NULL',
-          'invoiceId INTEGER NOT NULL',
-          'trackId INTEGER NOT NULL',
+          'id INTEGER  PRIMARY KEY AUTOINCREMENT',
+          'unitPrice INTEGER',
+          'quantity INTEGER',
+          'invoiceId int NOT NULL',
+          'trackId int NOT NULL',
+          'FOREIGN KEY (invoiceId) REFERENCES invoice (id)',
+          'FOREIGN KEY (trackId) REFERENCES track (id)'
         ],
       );
+  static String get name => 'invoice_item';
   Future<void> delete() =>
       ExtraQuery.instance.delete<int, InvoiceItem, IColumn<InvoiceItem>>(
         name,
@@ -128,10 +134,10 @@ extension InvoiceItemQuery on InvoiceItem {
         fields: [
           InvoiceItemQuery.invoiceItemUnitPrice.str,
           InvoiceItemQuery.invoiceItemQuantity.str,
-          InvoiceItemQuery.invoiceItemInvoiceId.str,
-          InvoiceItemQuery.invoiceItemTrackId.str
+          InvoiceItemQuery.invoiceItemInvoice.str,
+          InvoiceItemQuery.invoiceItemTrack.str
         ],
-        values: [unitPrice, quantity, invoiceId, trackId],
+        values: [unitPrice, quantity, invoice?.id, track?.id],
       );
   static Future<List<E>>
       rawQuery<E, T extends IColumn<InvoiceItem>, F, TF extends IColumn<F>>({

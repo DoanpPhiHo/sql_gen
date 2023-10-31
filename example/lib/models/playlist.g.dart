@@ -23,7 +23,7 @@ class _PlaylistName extends IColumn<Playlist> {
 }
 
 Playlist $PlaylistFromJsonDB(Map<String, dynamic> json) =>
-    Playlist(id: json['id'] as int ?? 0, name: json['name'] as String);
+    Playlist(id: json['id'] as int? ?? 0, name: json['name'] as String);
 
 // **************************************************************************
 // ModelGenerator
@@ -39,14 +39,11 @@ extension PlaylistQuery on Playlist {
       _PlaylistName('name', tableName: 'playlist');
 
   Map<String, dynamic> toMapFromDB() => {'id': id, 'name': name};
-  static String get name => 'playlist';
   static String get rawCreate => ExtraQuery.instance.createTable(
         name,
-        fields: [
-          'id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL',
-          'name TEXT NOT NULL',
-        ],
+        fields: ['id INTEGER  PRIMARY KEY AUTOINCREMENT', 'name TEXT'],
       );
+  static String get name => 'playlist';
   Future<void> delete() =>
       ExtraQuery.instance.delete<int, Playlist, IColumn<Playlist>>(
         name,

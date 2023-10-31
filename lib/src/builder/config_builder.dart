@@ -35,6 +35,7 @@ class ConfigGenerator extends GeneratorForAnnotation<SqlConfig> {
                 '$dbName',
                 raws: [
                   ${[
+          '\'PRAGMA foreign_keys = ON;\'',
           for (final cg in configs) '${cg.name}Query.rawCreate'
         ].join(',')}
                 ],

@@ -23,7 +23,7 @@ class _MediaTypeName extends IColumn<MediaType> {
 }
 
 MediaType $MediaTypeFromJsonDB(Map<String, dynamic> json) =>
-    MediaType(id: json['id'] as int ?? 0, name: json['name'] as String);
+    MediaType(id: json['id'] as int? ?? 0, name: json['name'] as String);
 
 // **************************************************************************
 // ModelGenerator
@@ -39,14 +39,11 @@ extension MediaTypeQuery on MediaType {
       _MediaTypeName('name', tableName: 'media_type');
 
   Map<String, dynamic> toMapFromDB() => {'id': id, 'name': name};
-  static String get name => 'media_type';
   static String get rawCreate => ExtraQuery.instance.createTable(
         name,
-        fields: [
-          'id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL',
-          'name TEXT NOT NULL',
-        ],
+        fields: ['id INTEGER  PRIMARY KEY AUTOINCREMENT', 'name TEXT'],
       );
+  static String get name => 'media_type';
   Future<void> delete() =>
       ExtraQuery.instance.delete<int, MediaType, IColumn<MediaType>>(
         name,

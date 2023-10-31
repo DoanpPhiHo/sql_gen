@@ -1,4 +1,7 @@
 import 'package:db_sql_query/db_sql_query.dart';
+import 'package:example/models/album.dart';
+import 'package:example/models/genres.dart';
+import 'package:example/models/media_type.dart';
 
 part 'track.g.dart';
 
@@ -8,12 +11,12 @@ class Track extends ITable {
   final int id;
   @column
   final String name;
-  @index
-  final int albumId;
-  @index
-  final int mediaTypeId;
-  @index
-  final int genresId;
+  @ForeignKey(name: 'albumId')
+  final Album? album;
+  @ForeignKey(name: 'mediaTypeId')
+  final MediaType? mediaType;
+  @ForeignKey(name: 'genresId')
+  final Genres? genres;
   @column
   final String? composer;
   @column
@@ -26,11 +29,11 @@ class Track extends ITable {
   Track({
     this.id = 0,
     required this.name,
-    required this.albumId,
+    this.album,
     required this.bites,
     this.composer,
-    required this.genresId,
-    required this.mediaTypeId,
+    this.genres,
+    this.mediaType,
     required this.milliseconds,
     required this.unitPrice,
   });

@@ -1,4 +1,5 @@
 import 'package:db_sql_query/db_sql_query.dart';
+import 'package:example/models/customer.dart';
 
 part 'invoice.g.dart';
 
@@ -6,8 +7,8 @@ part 'invoice.g.dart';
 class Invoice extends ITable {
   @primaryKeyAuto
   final int id;
-  @index
-  final int customerId;
+  @ForeignKey(name: 'customerId')
+  final Customer? customer;
   @column
   final int invoiceDate;
   @column
@@ -30,7 +31,7 @@ class Invoice extends ITable {
     required this.billingAddress,
     required this.billingCountry,
     required this.billingCity,
-    required this.customerId,
+    this.customer,
     required this.invoiceDate,
     required this.total,
   });

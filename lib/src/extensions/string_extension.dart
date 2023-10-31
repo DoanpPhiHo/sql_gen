@@ -14,4 +14,16 @@ extension StringX on String {
         .replaceAllMapped(exp, (m) => '_${m.group(0)}')
         .toLowerCase();
   }
+
+  String get removeQuestion {
+    return replaceFirst('?', '');
+  }
+
+  String autoQuestion(String? value) {
+    if (value == null) {
+      return this;
+    }
+
+    return '$removeQuestion? ?? $value';
+  }
 }

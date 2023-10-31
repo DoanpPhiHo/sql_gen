@@ -17,7 +17,7 @@ class ConfigChecked implements Generator {
     for (final cl in library.classes) {
       if (_typeChecker.hasAnnotationOfExact(cl)) {
         final libs = await buildStep.resolver.libraries.toList();
-        allDepsInStep.add(ModelConfigGen.fromLibs(libs, cl));
+        allDepsInStep.add(await ModelConfigGen.fromLibs(libs, cl));
       }
     }
     if (allDepsInStep.isNotEmpty) {
@@ -60,18 +60,17 @@ class ModelConfigGen {
         json['primaryIdType'] as String?,
       );
 
-  factory ModelConfigGen.fromLibs(List<LibraryElement> libs, ClassElement cl) {
+  static Future<ModelConfigGen> fromLibs(
+      List<LibraryElement> libs, ClassElement cl) async {
     final s =
         libs.where((e) => e.exportNamespace.definedNames.values.contains(cl));
+    final ClassGBuilder gBuilder =
+        await ClassGBuilder.fromElement(cl, null, null);
     return ModelConfigGen(
       cl.displayName,
       s.map((e) => e.identifier).toList(),
-      cl.fields.cast<FieldElement>().primaryKeyField(cl.displayName)?.name,
-      cl.fields
-          .cast<FieldElement>()
-          .primaryKeyField(cl.displayName)
-          ?.typeRunner
-          .toString(),
+      gBuilder.primaryKey?.fieldName,
+      gBuilder.primaryKey?.dartType.toString(),
     );
   }
 }

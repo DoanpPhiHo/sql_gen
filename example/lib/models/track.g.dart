@@ -22,27 +22,6 @@ class _TrackName extends IColumn<Track> {
   });
 }
 
-class _TrackAlbumId extends IColumn<Track> {
-  const _TrackAlbumId(
-    super.str, {
-    super.tableName,
-  });
-}
-
-class _TrackMediaTypeId extends IColumn<Track> {
-  const _TrackMediaTypeId(
-    super.str, {
-    super.tableName,
-  });
-}
-
-class _TrackGenresId extends IColumn<Track> {
-  const _TrackGenresId(
-    super.str, {
-    super.tableName,
-  });
-}
-
 class _TrackComposer extends IColumn<Track> {
   const _TrackComposer(
     super.str, {
@@ -71,16 +50,43 @@ class _TrackUnitPrice extends IColumn<Track> {
   });
 }
 
+class _TrackAlbum extends IColumn<Track> {
+  const _TrackAlbum(
+    super.str, {
+    super.tableName,
+  });
+}
+
+class _TrackMediaType extends IColumn<Track> {
+  const _TrackMediaType(
+    super.str, {
+    super.tableName,
+  });
+}
+
+class _TrackGenres extends IColumn<Track> {
+  const _TrackGenres(
+    super.str, {
+    super.tableName,
+  });
+}
+
 Track $TrackFromJsonDB(Map<String, dynamic> json) => Track(
-    id: json['id'] as int ?? 0,
+    id: json['id'] as int? ?? 0,
     name: json['name'] as String,
-    albumId: json['albumId'] as int,
-    mediaTypeId: json['mediaTypeId'] as int,
-    genresId: json['genresId'] as int,
     composer: json['composer'] as String?,
     milliseconds: json['milliseconds'] as int,
     bites: json['bites'] as int,
-    unitPrice: json['unitPrice'] as int);
+    unitPrice: json['unitPrice'] as int,
+    album: json['album'] != null
+        ? Album.fromJsonDB(json['album'] as Map<String, dynamic>)
+        : null,
+    mediaType: json['mediaType'] != null
+        ? MediaType.fromJsonDB(json['mediaType'] as Map<String, dynamic>)
+        : null,
+    genres: json['genres'] != null
+        ? Genres.fromJsonDB(json['genres'] as Map<String, dynamic>)
+        : null);
 
 // **************************************************************************
 // ModelGenerator
@@ -94,15 +100,6 @@ extension TrackQuery on Track {
   static const IColumn<Track> trackName =
       _TrackName('name', tableName: 'track');
 
-  static const IColumn<Track> trackAlbumId =
-      _TrackAlbumId('albumId', tableName: 'track');
-
-  static const IColumn<Track> trackMediaTypeId =
-      _TrackMediaTypeId('mediaTypeId', tableName: 'track');
-
-  static const IColumn<Track> trackGenresId =
-      _TrackGenresId('genresId', tableName: 'track');
-
   static const IColumn<Track> trackComposer =
       _TrackComposer('composer', tableName: 'track');
 
@@ -115,32 +112,44 @@ extension TrackQuery on Track {
   static const IColumn<Track> trackUnitPrice =
       _TrackUnitPrice('unitPrice', tableName: 'track');
 
+  static const IColumn<Track> trackAlbum =
+      _TrackAlbum('albumId', tableName: 'track');
+
+  static const IColumn<Track> trackMediaType =
+      _TrackMediaType('mediaTypeId', tableName: 'track');
+
+  static const IColumn<Track> trackGenres =
+      _TrackGenres('genresId', tableName: 'track');
+
   Map<String, dynamic> toMapFromDB() => {
         'id': id,
         'name': name,
-        'albumId': albumId,
-        'mediaTypeId': mediaTypeId,
-        'genresId': genresId,
         'composer': composer,
         'milliseconds': milliseconds,
         'bites': bites,
-        'unitPrice': unitPrice
+        'unitPrice': unitPrice,
+        'albumId': album?.id,
+        'mediaTypeId': mediaType?.id,
+        'genresId': genres?.id
       };
-  static String get name => 'track';
   static String get rawCreate => ExtraQuery.instance.createTable(
         name,
         fields: [
-          'id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL',
-          'name TEXT NOT NULL',
-          'composer TEXT',
-          'milliseconds INTEGER NOT NULL',
-          'bites INTEGER NOT NULL',
-          'unitPrice INTEGER NOT NULL',
-          'albumId INTEGER NOT NULL',
-          'mediaTypeId INTEGER NOT NULL',
-          'genresId INTEGER NOT NULL',
+          'id INTEGER  PRIMARY KEY AUTOINCREMENT',
+          'name TEXT',
+          'composer TEXT NOT NULL',
+          'milliseconds INTEGER',
+          'bites INTEGER',
+          'unitPrice INTEGER',
+          'albumId int NOT NULL',
+          'mediaTypeId int NOT NULL',
+          'genresId int NOT NULL',
+          'FOREIGN KEY (albumId) REFERENCES album (id)',
+          'FOREIGN KEY (mediaTypeId) REFERENCES mediaType (id)',
+          'FOREIGN KEY (genresId) REFERENCES genres (id)'
         ],
       );
+  static String get name => 'track';
   Future<void> delete() =>
       ExtraQuery.instance.delete<int, Track, IColumn<Track>>(
         name,
@@ -180,9 +189,9 @@ extension TrackQuery on Track {
           TrackQuery.trackMilliseconds.str,
           TrackQuery.trackBites.str,
           TrackQuery.trackUnitPrice.str,
-          TrackQuery.trackAlbumId.str,
-          TrackQuery.trackMediaTypeId.str,
-          TrackQuery.trackGenresId.str
+          TrackQuery.trackAlbum.str,
+          TrackQuery.trackMediaType.str,
+          TrackQuery.trackGenres.str
         ],
         values: [
           name,
@@ -190,9 +199,9 @@ extension TrackQuery on Track {
           milliseconds,
           bites,
           unitPrice,
-          albumId,
-          mediaTypeId,
-          genresId
+          album?.id,
+          mediaType?.id,
+          genres?.id
         ],
       );
   static Future<List<E>>

@@ -15,4 +15,3 @@ part 'field_extension.dart';
 part 'sql_extension.dart';
 part 'dart_type_extension.dart';
 part 'string_extension.dart';
-part 'c_builder_extension.dart';

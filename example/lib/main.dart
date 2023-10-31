@@ -223,11 +223,11 @@ class _MyHomePageState extends State<MyHomePage> {
                 final dogs = await DogQuery.rawQuery(
                   parser: (e) => Dog.fromJsonDB(e),
                   select: [
-                    DogField.dogId,
-                    DogField.dogAge,
-                    DogField.dogName,
-                    DogField.dogCategory,
-                    Rename<Dog, IColumn<Dog>>(Count(DogField.dogAge), 'count'),
+                    DogQuery.dogId,
+                    DogQuery.dogAge,
+                    DogQuery.dogName,
+                    DogQuery.dogCategory,
+                    Rename<Dog, IColumn<Dog>>(Count(DogQuery.dogAge), 'count'),
                   ],
                   // where: [
                   //   WhereValue(dogAge, 214),
@@ -243,20 +243,20 @@ class _MyHomePageState extends State<MyHomePage> {
                   innerJoin: [
                     InnerJoin(
                       select: [
-                        DogCategoryField.dogCategoryName,
+                        DogCategoryQuery.dogCategoryName,
                       ],
                       where: [
                         EqualValue<DogCategory, IColumn<DogCategory>,
                             IColumn<Dog>>(
-                          DogCategoryField.dogCategoryId,
-                          DogField.dogCategory,
+                          DogCategoryQuery.dogCategoryId,
+                          DogQuery.dogCategory,
                         ),
                       ],
                     )
                   ],
                   limit: 100,
                   offset: 0,
-                  groupBy: [DogField.dogCategory],
+                  groupBy: [DogQuery.dogCategory],
                 );
                 setState(() {
                   _dogs = dogs;
@@ -270,7 +270,6 @@ class _MyHomePageState extends State<MyHomePage> {
                   name: 'na' * (Random().nextInt(4) + 1).toInt() +
                       'me' * (Random().nextInt(4) + 1).toInt(),
                   age: (Random().nextInt(20) + 7).toInt(),
-                  category: (Random().nextInt(2) + 1).toInt(),
                 ).insert();
               },
               child: const Text('insert random'),

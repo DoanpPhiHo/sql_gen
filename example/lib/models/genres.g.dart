@@ -23,7 +23,7 @@ class _GenresName extends IColumn<Genres> {
 }
 
 Genres $GenresFromJsonDB(Map<String, dynamic> json) =>
-    Genres(id: json['id'] as int ?? 0, name: json['name'] as String);
+    Genres(id: json['id'] as int? ?? 0, name: json['name'] as String);
 
 // **************************************************************************
 // ModelGenerator
@@ -38,14 +38,11 @@ extension GenresQuery on Genres {
       _GenresName('name', tableName: 'genres');
 
   Map<String, dynamic> toMapFromDB() => {'id': id, 'name': name};
-  static String get name => 'genres';
   static String get rawCreate => ExtraQuery.instance.createTable(
         name,
-        fields: [
-          'id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL',
-          'name TEXT NOT NULL',
-        ],
+        fields: ['id INTEGER  PRIMARY KEY AUTOINCREMENT', 'name TEXT'],
       );
+  static String get name => 'genres';
   Future<void> delete() =>
       ExtraQuery.instance.delete<int, Genres, IColumn<Genres>>(
         name,

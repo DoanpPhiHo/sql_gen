@@ -23,7 +23,7 @@ class _DogCategoryName extends IColumn<DogCategory> {
 }
 
 DogCategory $DogCategoryFromJsonDB(Map<String, dynamic> json) =>
-    DogCategory(id: json['id'] as int ?? 0, name: json['name'] as String);
+    DogCategory(id: json['id'] as int? ?? 0, name: json['name'] as String);
 
 // **************************************************************************
 // ModelGenerator
@@ -39,14 +39,11 @@ extension DogCategoryQuery on DogCategory {
       _DogCategoryName('name', tableName: 'dog_category');
 
   Map<String, dynamic> toMapFromDB() => {'id': id, 'name': name};
-  static String get name => 'dog_category';
   static String get rawCreate => ExtraQuery.instance.createTable(
         name,
-        fields: [
-          'id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL',
-          'name TEXT NOT NULL',
-        ],
+        fields: ['id INTEGER  PRIMARY KEY AUTOINCREMENT', 'name TEXT'],
       );
+  static String get name => 'dog_category';
   Future<void> delete() =>
       ExtraQuery.instance.delete<int, DogCategory, IColumn<DogCategory>>(
         name,

@@ -92,15 +92,15 @@ class _CustomerEmail extends IColumn<Customer> {
   });
 }
 
-class _CustomerSupportRepId extends IColumn<Customer> {
-  const _CustomerSupportRepId(
+class _CustomerSupportRep extends IColumn<Customer> {
+  const _CustomerSupportRep(
     super.str, {
     super.tableName,
   });
 }
 
 Customer $CustomerFromJsonDB(Map<String, dynamic> json) => Customer(
-    id: json['id'] as int ?? 0,
+    id: json['id'] as int? ?? 0,
     firstName: json['firstName'] as String,
     lastName: json['lastName'] as String,
     company: json['company'] as String?,
@@ -112,7 +112,9 @@ Customer $CustomerFromJsonDB(Map<String, dynamic> json) => Customer(
     phone: json['phone'] as String?,
     fax: json['fax'] as String?,
     email: json['email'] as String,
-    supportRepId: json['supportRepId'] as String);
+    supportRep: json['supportRep'] != null
+        ? Customer.fromJsonDB(json['supportRep'] as Map<String, dynamic>)
+        : null);
 
 // **************************************************************************
 // ModelGenerator
@@ -157,8 +159,8 @@ extension CustomerQuery on Customer {
   static const IColumn<Customer> customerEmail =
       _CustomerEmail('email', tableName: 'customer');
 
-  static const IColumn<Customer> customerSupportRepId =
-      _CustomerSupportRepId('supportRepId', tableName: 'customer');
+  static const IColumn<Customer> customerSupportRep =
+      _CustomerSupportRep('supportRepId', tableName: 'customer');
 
   Map<String, dynamic> toMapFromDB() => {
         'id': id,
@@ -173,27 +175,28 @@ extension CustomerQuery on Customer {
         'phone': phone,
         'fax': fax,
         'email': email,
-        'supportRepId': supportRepId
+        'supportRepId': supportRep?.id
       };
-  static String get name => 'customer';
   static String get rawCreate => ExtraQuery.instance.createTable(
         name,
         fields: [
-          'id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL',
-          'firstName TEXT NOT NULL',
-          'lastName TEXT NOT NULL',
-          'company TEXT',
-          'address TEXT NOT NULL',
-          'city TEXT NOT NULL',
-          'state TEXT',
-          'country TEXT NOT NULL',
-          'postalCode TEXT',
-          'phone TEXT',
-          'fax TEXT',
-          'email TEXT NOT NULL',
-          'supportRepId TEXT NOT NULL',
+          'id INTEGER  PRIMARY KEY AUTOINCREMENT',
+          'firstName TEXT',
+          'lastName TEXT',
+          'company TEXT NOT NULL',
+          'address TEXT',
+          'city TEXT',
+          'state TEXT NOT NULL',
+          'country TEXT',
+          'postalCode TEXT NOT NULL',
+          'phone TEXT NOT NULL',
+          'fax TEXT NOT NULL',
+          'email TEXT',
+          'supportRepId int NOT NULL',
+          'FOREIGN KEY (supportRepId) REFERENCES supportRep (id)'
         ],
       );
+  static String get name => 'customer';
   Future<void> delete() =>
       ExtraQuery.instance.delete<int, Customer, IColumn<Customer>>(
         name,
@@ -239,7 +242,7 @@ extension CustomerQuery on Customer {
           CustomerQuery.customerPhone.str,
           CustomerQuery.customerFax.str,
           CustomerQuery.customerEmail.str,
-          CustomerQuery.customerSupportRepId.str
+          CustomerQuery.customerSupportRep.str
         ],
         values: [
           firstName,
@@ -253,7 +256,7 @@ extension CustomerQuery on Customer {
           phone,
           fax,
           email,
-          supportRepId
+          supportRep?.id
         ],
       );
   static Future<List<E>>

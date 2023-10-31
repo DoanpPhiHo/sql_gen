@@ -1,4 +1,5 @@
 import 'package:db_sql_query/db_sql_query.dart';
+import 'package:example/dog_category.dart';
 
 part 'dog.g.dart';
 
@@ -10,14 +11,14 @@ class Dog extends ITable {
   final String name;
   @column
   final int? age;
-  @index
-  final int category;
+  @ForeignKey(name: 'categoryId')
+  final DogCategory? category;
 
   Dog({
     this.id = 0,
     required this.name,
     this.age,
-    required this.category,
+    this.category,
   });
 
   factory Dog.fromJsonDB(Map<String, dynamic> json) => $DogFromJsonDB(json);
