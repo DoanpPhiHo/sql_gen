@@ -104,9 +104,14 @@ class ExtraQuery {
     assert(fields.length == values.length, 'length fields not equal values');
     final db = await database;
     if (fields.isNotEmpty) {
-      final fStr = fields.join(',');
-      final fParams = fields.map((e) => '?').join(',');
-      await db.rawInsert('INSERT INTO $table($fStr) VALUES($fParams)', values);
+      final s = {for (int i = 0; i < fields.length; i++) fields[i]: values[i]};
+      s.removeWhere((key, value) => value == null);
+      final fStr = s.keys.join(',');
+      final fParams = s.keys.map((e) => '?').join(',');
+      await db.rawInsert(
+        'INSERT INTO $table($fStr) VALUES($fParams)',
+        s.values.toList(),
+      );
       return;
     }
     await db.insert(table, map, conflictAlgorithm: ConflictAlgorithm.replace);

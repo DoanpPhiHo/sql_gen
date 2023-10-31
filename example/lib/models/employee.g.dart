@@ -205,6 +205,7 @@ Employee $EmployeeFromJsonDB(Map<String, dynamic> json) => Employee(
     lastName: json['lastName'] as String,
     title: json['title'] as String,
     reportsTo: json['reportsTo'] as int?,
+    // TODO(hodoan): check
     birthDate: json['birthDate'] as DateTime,
     hireDate: json['hireDate'] as DateTime,
     address: json['address'] as String);
