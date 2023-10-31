@@ -3,40 +3,6 @@
 part of 'album.dart';
 
 // **************************************************************************
-// FieldGenerator
-// **************************************************************************
-
-// ignore_for_file:
-
-class _AlbumId extends IColumn<Album> {
-  const _AlbumId(
-    super.str, {
-    super.tableName,
-  });
-}
-
-class _AlbumTitle extends IColumn<Album> {
-  const _AlbumTitle(
-    super.str, {
-    super.tableName,
-  });
-}
-
-class _AlbumArtist extends IColumn<Album> {
-  const _AlbumArtist(
-    super.str, {
-    super.tableName,
-  });
-}
-
-Album $AlbumFromJsonDB(Map<String, dynamic> json) => Album(
-    id: json['id'] as int? ?? 0,
-    title: json['title'] as String,
-    artist: json['artist'] != null
-        ? Artist.fromJsonDB(json['artist'] as Map<String, dynamic>)
-        : null);
-
-// **************************************************************************
 // ModelGenerator
 // **************************************************************************
 
@@ -58,7 +24,7 @@ extension AlbumQuery on Album {
         fields: [
           'id INTEGER  PRIMARY KEY AUTOINCREMENT',
           'title TEXT',
-          'artistId int NOT NULL',
+          'artistId INTEGER NOT NULL',
           'FOREIGN KEY (artistId) REFERENCES artist (id) ON DELETE NO ACTION ON UPDATE NO ACTION'
         ],
       );
@@ -132,3 +98,31 @@ extension AlbumQuery on Album {
           );
   static String get rawDropTable => ExtraQuery.instance.dropTable(name);
 }
+
+class _AlbumId extends IColumn<Album> {
+  const _AlbumId(
+    super.str, {
+    super.tableName,
+  });
+}
+
+class _AlbumTitle extends IColumn<Album> {
+  const _AlbumTitle(
+    super.str, {
+    super.tableName,
+  });
+}
+
+class _AlbumArtist extends IColumn<Album> {
+  const _AlbumArtist(
+    super.str, {
+    super.tableName,
+  });
+}
+
+Album $AlbumFromJsonDB(Map<String, dynamic> json) => Album(
+    id: json['id'] as int? ?? 0,
+    title: json['title'] as String,
+    artist: json['artist'] != null
+        ? Artist.fromJsonDB(json['artist'] as Map<String, dynamic>)
+        : null);

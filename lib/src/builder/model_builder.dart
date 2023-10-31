@@ -16,11 +16,10 @@ class ModelGenerator extends GeneratorForAnnotation<ModelSql> {
     final gBuilder =
         await ClassGBuilder.fromElement(element, annotation, buildStep);
 
-    final exName = '${element.displayName}Query';
     final extensionBuilder = Extension((e) {
       e
         ..on = refer(element.displayName)
-        ..name = exName
+        ..name = gBuilder.extensionName
         ..fields.addAll([
           for (final field in gBuilder.all)
             Field(
@@ -60,7 +59,9 @@ class ModelGenerator extends GeneratorForAnnotation<ModelSql> {
                 fields:[
                 ${[
                   for (final f in gBuilder.all) '\'${f.rawCreate}\'',
-                  for (final f in gBuilder.foreign) '\'${f.foreignStr}\''
+                  for (final f in gBuilder.foreign) '\'${f.foreignStr}\'',
+                  if (gBuilder.rawPrimaryKey != null)
+                    '\'${gBuilder.rawPrimaryKey}\'',
                 ].join(',')}
               ],)''',
               ),
@@ -80,10 +81,58 @@ class ModelGenerator extends GeneratorForAnnotation<ModelSql> {
         ..methods.addAll(_buildExtensions(gBuilder));
     });
 
+    final lstClassBuilder = gBuilder.all.map((e) => Class((c) {
+          c
+            ..name = e.nameClass
+            ..extend = Reference('IColumn<${gBuilder.className}>')
+            ..constructors.add(Constructor((cb) {
+              cb
+                ..constant = true
+                ..requiredParameters.add(
+                  Parameter(
+                    (p) {
+                      p
+                        ..name = 'str'
+                        ..toSuper = true;
+                    },
+                  ),
+                )
+                ..optionalParameters.add(
+                  Parameter(
+                    (p) {
+                      p
+                        ..name = 'tableName'
+                        ..required = false
+                        ..named = true
+                        ..toSuper = true;
+                    },
+                  ),
+                );
+            }));
+        }));
+
+    final functionFromJsonBuilder = Method((m) {
+      m
+        ..name = '\$${gBuilder.className}FromJsonDB'
+        ..lambda = true
+        ..body = Code('''
+            ${gBuilder.className}(
+              ${[for (final s in gBuilder.all) s.rawFromJson].join(',')}
+            );''')
+        ..requiredParameters.add(Parameter((p) {
+          p
+            ..name = 'json'
+            ..type = refer('Map<String,dynamic>');
+        }))
+        ..returns = refer(gBuilder.className);
+    });
+
     final emitter = DartEmitter(useNullSafetySyntax: true);
     return DartFormatter().format([
       _analyzerIgnores,
       extensionBuilder.accept(emitter),
+      for (final s in lstClassBuilder) s.accept(emitter),
+      functionFromJsonBuilder.accept(emitter),
     ].join('\n\n'));
   }
 
@@ -210,6 +259,20 @@ class ModelGenerator extends GeneratorForAnnotation<ModelSql> {
         //#endregion ================= insertAuto =====================
         //#region ================= insert =====================
         if (gBuilder.primaryKey?.autoId == false)
+          Method(
+            (f) => f
+              ..name = 'insert'
+              ..lambda = true
+              ..returns = refer('Future<void>')
+              ..body = Code(
+                '''ExtraQuery.instance.insert(
+                name,
+                ConfigSqflite.instance.database,
+                map: toMapFromDB(),
+              )''',
+              ),
+          ),
+        if (gBuilder.primaryKeys?.isNotEmpty ?? false)
           Method(
             (f) => f
               ..name = 'insert'

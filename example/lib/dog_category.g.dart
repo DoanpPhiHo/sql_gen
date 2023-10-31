@@ -3,29 +3,6 @@
 part of 'dog_category.dart';
 
 // **************************************************************************
-// FieldGenerator
-// **************************************************************************
-
-// ignore_for_file:
-
-class _DogCategoryId extends IColumn<DogCategory> {
-  const _DogCategoryId(
-    super.str, {
-    super.tableName,
-  });
-}
-
-class _DogCategoryName extends IColumn<DogCategory> {
-  const _DogCategoryName(
-    super.str, {
-    super.tableName,
-  });
-}
-
-DogCategory $DogCategoryFromJsonDB(Map<String, dynamic> json) =>
-    DogCategory(id: json['id'] as int? ?? 0, name: json['name'] as String);
-
-// **************************************************************************
 // ModelGenerator
 // **************************************************************************
 
@@ -115,3 +92,20 @@ extension DogCategoryQuery on DogCategory {
           );
   static String get rawDropTable => ExtraQuery.instance.dropTable(name);
 }
+
+class _DogCategoryId extends IColumn<DogCategory> {
+  const _DogCategoryId(
+    super.str, {
+    super.tableName,
+  });
+}
+
+class _DogCategoryName extends IColumn<DogCategory> {
+  const _DogCategoryName(
+    super.str, {
+    super.tableName,
+  });
+}
+
+DogCategory $DogCategoryFromJsonDB(Map<String, dynamic> json) =>
+    DogCategory(id: json['id'] as int? ?? 0, name: json['name'] as String);

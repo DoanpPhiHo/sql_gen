@@ -1,6 +1,7 @@
 part of 'extensions.dart';
 
 final _primaryKeyChecker = const TypeChecker.fromRuntime(ID);
+final _primaryKeyMultiChecker = const TypeChecker.fromRuntime(IDMulti);
 final _primaryKeyAutoChecker = const TypeChecker.fromRuntime(IDAuto);
 
 final _columnChecker = const TypeChecker.fromRuntime(TColumn);
@@ -25,9 +26,23 @@ class ClassGBuilder {
   /// @primaryKey
   /// final int id => GBuilder<id>
   final GBuilder? primaryKey;
+
+  /// @primaryKeyMulti
+  /// final int id => GBuilder<id>
+  final List<GBuilder>? primaryKeys;
+
+  /// @column
+  /// final int id => [GBuilder<id>]
   final List<GBuilder> columns;
+
+  /// @ForeignKey(...)
+  /// final int id => [GBuilder<id>]
   final List<GBuilder> foreign;
+
+  /// ...[foreign], ...[columns], ...[primaryKeys], [primaryKey]
   final List<GBuilder> all;
+
+  /// ...[foreign], ...[columns]
   final List<GBuilder> allWithOutPrimary;
 
   /// ```dart
@@ -42,11 +57,18 @@ class ClassGBuilder {
   /// => album
   String get tName => tableNameInput ?? tableName;
 
+  String? get rawPrimaryKey {
+    if (primaryKeys == null || primaryKeys!.isEmpty) return null;
+    final s = primaryKeys?.map((e) => e.fieldNameInput).join(', ');
+    return 'PRIMARY KEY ($s)';
+  }
+
   ClassGBuilder({
     required this.className,
     required this.tableName,
     required this.tableNameInput,
     required this.primaryKey,
+    required this.primaryKeys,
     required this.columns,
     required this.foreign,
     required this.all,
@@ -71,12 +93,23 @@ class ClassGBuilder {
     }
     final configs = jsonData.map((e) => ModelConfigGen.fromJson(e)).toList();
 
+    /**
+     * static Future<void> seeded(Database db) => ExtraQuery.instance.seeded<Album>(
+        name,
+        db,
+        parser: (e) => Album.fromJsonDB(e),
+        insert: (v) => v.insert(),
+        jsonStr: jsonAlbums,
+      );
+     */
+
     /// fields in class Table
     final fields = element.fields.cast<FieldElement>();
 
     final gbs = fields.map((e) => GBuilder.from(e, configs, element)).toList();
 
     final primaryKey = gbs.firstWhereOrNull((e) => e.isId == true);
+    final primaryKeys = gbs.where((e) => e.isIds == true).toList();
     final columns =
         gbs.where((e) => e.isId == false && e.subSqlType == null).toList();
     final foreign = gbs.where((e) => e.subSqlType != null).toList();
@@ -90,6 +123,7 @@ class ClassGBuilder {
       columns: columns,
       foreign: foreign,
       all: all,
+      primaryKeys: primaryKeys,
       allWithOutPrimary: allWithOutPrimary,
       extensionName: extensionName,
     );
@@ -123,15 +157,6 @@ class GBuilder {
   /// ```
   /// final Dog dog => 'int'
   final String? subFlutterType;
-
-  ///```dart
-  /// class Dog{
-  ///   @primaryKey
-  ///   final int id;
-  /// }
-  /// ```
-  /// final Dog dog => int
-  final DartType? subDartType;
 
   ///```dart
   /// class Dog{
@@ -206,6 +231,12 @@ class GBuilder {
   ///   final int id; => true
   final bool isId;
 
+  ///   @primaryKeyMulti
+  ///   final int a; => true
+  ///   @primaryKeyMulti
+  ///   final int b; => true
+  final bool isIds;
+
   ///   @primaryKeyAuto
   ///   final int id; => true
   final bool autoId;
@@ -227,7 +258,7 @@ class GBuilder {
   }
 
   String get _notNull {
-    if (nullCreate) return 'NOT NULL';
+    if (!nullCreate) return 'NOT NULL';
     return '';
   }
 
@@ -237,7 +268,11 @@ class GBuilder {
 
   String get _from {
     if (isClass) {
-      return 'json[\'$fieldName\'] != null ? ${flutterType.removeQuestion}.fromJsonDB(json[\'$fieldName\'] as Map<String,dynamic>) : null';
+      if (nullCreate) {
+        return 'json[\'$fieldName\'] != null ? ${flutterType.removeQuestion}.fromJsonDB(json[\'$fieldName\'] as Map<String,dynamic>) : null';
+      } else {
+        return '${flutterType.removeQuestion}.fromJsonDB(json[\'$fieldName\'] as Map<String,dynamic>)';
+      }
     }
     if (isEnum) {
       return '\$fromJson${flutterType.removeQuestion}(json[\'$fieldName\'])';
@@ -274,10 +309,7 @@ class GBuilder {
 
   /// * 'title': title
   /// * 'artistId': artist?.id
-  String get rawToJson {
-    if (subDartType != null) {}
-    return '\'$nameSql\':$to';
-  }
+  String get rawToJson => '\'$nameSql\':$to';
 
   String get _rawDelete => onDelete != null ? 'ON DELETE ${onDelete!.str}' : '';
   String get _rawUpdate => onUpdate != null ? 'ON UPDATE ${onUpdate!.str}' : '';
@@ -302,8 +334,8 @@ class GBuilder {
     required this.nameClassConst,
     required this.nullCreate,
     this.subFlutterType,
-    this.subDartType,
     this.isId = false,
+    required this.isIds,
     this.autoId = true,
     required this.sqlType,
     this.subSqlType,
@@ -320,7 +352,8 @@ class GBuilder {
     final className = classElement.displayName;
     final isId = field._isPrimary || field._isPrimaryAuto;
     final autoId = field._isPrimaryAuto;
-    final isClass = field._isFore;
+    final isIds = field._isPrimaryMulti;
+    final isClass = field._isFore || field._isPrimaryMulti;
     bool isEnum = field._isEnum;
 
     final classPrivateName = '_$className${field.displayName.capitalize}';
@@ -346,10 +379,9 @@ class GBuilder {
       isClass: isClass,
       isEnum: isEnum,
       isId: isId,
-      //TODO
-      subDartType: null,
+      isIds: isIds,
       subFlutterType: config?.primaryIdType,
-      subSqlType: config?.primaryIdType,
+      subSqlType: config?.primaryIdType.sqlType?.str,
       onDelete: onDelete,
       onUpdate: onUpdate,
     );
@@ -376,33 +408,39 @@ extension FX on FieldElement {
   bool get _isEnum => _enumeratedChecker.hasAnnotationOfExact(this);
   bool get _isColum => _columnChecker.hasAnnotationOfExact(this);
   bool get _isPrimary => _primaryKeyChecker.hasAnnotationOfExact(this);
+  bool get _isPrimaryMulti =>
+      _primaryKeyMultiChecker.hasAnnotationOfExact(this);
   bool get _isPrimaryAuto => _primaryKeyAutoChecker.hasAnnotationOfExact(this);
   //#endregion ==================== end check =========================
   //#region ================== get value ============================
   ForeignAction? get delValue {
+    DartObject? dartObject;
+    if (_isPrimaryMulti) {
+      dartObject = _primaryKeyMultiChecker.firstAnnotationOfExact(this);
+    }
     if (_isFore) {
-      final v = _foreignChecker
-          .firstAnnotationOfExact(this)
-          ?.getField('onDelete')
-          ?.getField('_name')
-          ?.toStringValue();
-      if (v != null) {
-        return ForeignAction.values.byName(v);
-      }
+      dartObject = _foreignChecker.firstAnnotationOfExact(this);
+    }
+    final v =
+        dartObject?.getField('onDelete')?.getField('_name')?.toStringValue();
+    if (v != null) {
+      return ForeignAction.values.byName(v);
     }
     return null;
   }
 
   ForeignAction? get updValue {
+    DartObject? dartObject;
+    if (_isPrimaryMulti) {
+      dartObject = _primaryKeyMultiChecker.firstAnnotationOfExact(this);
+    }
     if (_isFore) {
-      final v = _foreignChecker
-          .firstAnnotationOfExact(this)
-          ?.getField('onUpdate')
-          ?.getField('_name')
-          ?.toStringValue();
-      if (v != null) {
-        return ForeignAction.values.byName(v);
-      }
+      dartObject = _foreignChecker.firstAnnotationOfExact(this);
+    }
+    final v =
+        dartObject?.getField('onUpdate')?.getField('_name')?.toStringValue();
+    if (v != null) {
+      return ForeignAction.values.byName(v);
     }
     return null;
   }
@@ -411,6 +449,9 @@ extension FX on FieldElement {
     DartObject? dartObject;
     if (_isPrimaryAuto) {
       dartObject = _primaryKeyAutoChecker.firstAnnotationOfExact(this);
+    }
+    if (_isPrimaryMulti) {
+      dartObject = _primaryKeyMultiChecker.firstAnnotationOfExact(this);
     }
     if (_isPrimary) {
       dartObject = _primaryKeyChecker.firstAnnotationOfExact(this);

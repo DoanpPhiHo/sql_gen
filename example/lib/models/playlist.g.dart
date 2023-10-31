@@ -3,29 +3,6 @@
 part of 'playlist.dart';
 
 // **************************************************************************
-// FieldGenerator
-// **************************************************************************
-
-// ignore_for_file:
-
-class _PlaylistId extends IColumn<Playlist> {
-  const _PlaylistId(
-    super.str, {
-    super.tableName,
-  });
-}
-
-class _PlaylistName extends IColumn<Playlist> {
-  const _PlaylistName(
-    super.str, {
-    super.tableName,
-  });
-}
-
-Playlist $PlaylistFromJsonDB(Map<String, dynamic> json) =>
-    Playlist(id: json['id'] as int? ?? 0, name: json['name'] as String);
-
-// **************************************************************************
 // ModelGenerator
 // **************************************************************************
 
@@ -113,3 +90,20 @@ extension PlaylistQuery on Playlist {
           );
   static String get rawDropTable => ExtraQuery.instance.dropTable(name);
 }
+
+class _PlaylistId extends IColumn<Playlist> {
+  const _PlaylistId(
+    super.str, {
+    super.tableName,
+  });
+}
+
+class _PlaylistName extends IColumn<Playlist> {
+  const _PlaylistName(
+    super.str, {
+    super.tableName,
+  });
+}
+
+Playlist $PlaylistFromJsonDB(Map<String, dynamic> json) =>
+    Playlist(id: json['id'] as int? ?? 0, name: json['name'] as String);

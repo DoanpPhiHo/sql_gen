@@ -3,58 +3,6 @@
 part of 'invoice_item.dart';
 
 // **************************************************************************
-// FieldGenerator
-// **************************************************************************
-
-// ignore_for_file:
-
-class _InvoiceItemId extends IColumn<InvoiceItem> {
-  const _InvoiceItemId(
-    super.str, {
-    super.tableName,
-  });
-}
-
-class _InvoiceItemUnitPrice extends IColumn<InvoiceItem> {
-  const _InvoiceItemUnitPrice(
-    super.str, {
-    super.tableName,
-  });
-}
-
-class _InvoiceItemQuantity extends IColumn<InvoiceItem> {
-  const _InvoiceItemQuantity(
-    super.str, {
-    super.tableName,
-  });
-}
-
-class _InvoiceItemInvoice extends IColumn<InvoiceItem> {
-  const _InvoiceItemInvoice(
-    super.str, {
-    super.tableName,
-  });
-}
-
-class _InvoiceItemTrack extends IColumn<InvoiceItem> {
-  const _InvoiceItemTrack(
-    super.str, {
-    super.tableName,
-  });
-}
-
-InvoiceItem $InvoiceItemFromJsonDB(Map<String, dynamic> json) => InvoiceItem(
-    id: json['id'] as int? ?? 0,
-    unitPrice: json['unitPrice'] as int,
-    quantity: json['quantity'] as int,
-    invoice: json['invoice'] != null
-        ? Invoice.fromJsonDB(json['invoice'] as Map<String, dynamic>)
-        : null,
-    track: json['track'] != null
-        ? Track.fromJsonDB(json['track'] as Map<String, dynamic>)
-        : null);
-
-// **************************************************************************
 // ModelGenerator
 // **************************************************************************
 
@@ -86,13 +34,13 @@ extension InvoiceItemQuery on InvoiceItem {
   static String get rawCreate => ExtraQuery.instance.createTable(
         name,
         fields: [
-          'id INTEGER  PRIMARY KEY AUTOINCREMENT',
-          'unitPrice INTEGER',
-          'quantity INTEGER',
-          'invoiceId int NOT NULL',
-          'trackId int NOT NULL',
-          'FOREIGN KEY (invoiceId) REFERENCES invoice (id)',
-          'FOREIGN KEY (trackId) REFERENCES track (id)'
+          'id INTEGER  PRIMARY KEY AUTOINCREMENT NOT NULL',
+          'unitPrice INTEGER NOT NULL',
+          'quantity INTEGER NOT NULL',
+          'invoiceId INTEGER',
+          'trackId INTEGER',
+          'FOREIGN KEY (invoiceId) REFERENCES invoice (id) ON DELETE NO ACTION ON UPDATE NO ACTION',
+          'FOREIGN KEY (trackId) REFERENCES track (id) ON DELETE NO ACTION ON UPDATE NO ACTION'
         ],
       );
   static String get name => 'invoice_item';
@@ -172,3 +120,49 @@ extension InvoiceItemQuery on InvoiceItem {
           );
   static String get rawDropTable => ExtraQuery.instance.dropTable(name);
 }
+
+class _InvoiceItemId extends IColumn<InvoiceItem> {
+  const _InvoiceItemId(
+    super.str, {
+    super.tableName,
+  });
+}
+
+class _InvoiceItemUnitPrice extends IColumn<InvoiceItem> {
+  const _InvoiceItemUnitPrice(
+    super.str, {
+    super.tableName,
+  });
+}
+
+class _InvoiceItemQuantity extends IColumn<InvoiceItem> {
+  const _InvoiceItemQuantity(
+    super.str, {
+    super.tableName,
+  });
+}
+
+class _InvoiceItemInvoice extends IColumn<InvoiceItem> {
+  const _InvoiceItemInvoice(
+    super.str, {
+    super.tableName,
+  });
+}
+
+class _InvoiceItemTrack extends IColumn<InvoiceItem> {
+  const _InvoiceItemTrack(
+    super.str, {
+    super.tableName,
+  });
+}
+
+InvoiceItem $InvoiceItemFromJsonDB(Map<String, dynamic> json) => InvoiceItem(
+    id: json['id'] as int? ?? 0,
+    unitPrice: json['unitPrice'] as int,
+    quantity: json['quantity'] as int,
+    invoice: json['invoice'] != null
+        ? Invoice.fromJsonDB(json['invoice'] as Map<String, dynamic>)
+        : null,
+    track: json['track'] != null
+        ? Track.fromJsonDB(json['track'] as Map<String, dynamic>)
+        : null);

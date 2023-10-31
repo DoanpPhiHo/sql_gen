@@ -3,29 +3,6 @@
 part of 'genres.dart';
 
 // **************************************************************************
-// FieldGenerator
-// **************************************************************************
-
-// ignore_for_file:
-
-class _GenresId extends IColumn<Genres> {
-  const _GenresId(
-    super.str, {
-    super.tableName,
-  });
-}
-
-class _GenresName extends IColumn<Genres> {
-  const _GenresName(
-    super.str, {
-    super.tableName,
-  });
-}
-
-Genres $GenresFromJsonDB(Map<String, dynamic> json) =>
-    Genres(id: json['id'] as int? ?? 0, name: json['name'] as String);
-
-// **************************************************************************
 // ModelGenerator
 // **************************************************************************
 
@@ -112,3 +89,20 @@ extension GenresQuery on Genres {
           );
   static String get rawDropTable => ExtraQuery.instance.dropTable(name);
 }
+
+class _GenresId extends IColumn<Genres> {
+  const _GenresId(
+    super.str, {
+    super.tableName,
+  });
+}
+
+class _GenresName extends IColumn<Genres> {
+  const _GenresName(
+    super.str, {
+    super.tableName,
+  });
+}
+
+Genres $GenresFromJsonDB(Map<String, dynamic> json) =>
+    Genres(id: json['id'] as int? ?? 0, name: json['name'] as String);

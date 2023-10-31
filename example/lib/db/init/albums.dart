@@ -1,9 +1,6 @@
 // spell: disable
-import 'dart:convert';
 
-import 'package:example/models/album.dart';
-
-const _jsonAlbums = '''
+const jsonAlbums = '''
 [
     {
         "title": "For Those About To Rock We Salute You",
@@ -1395,6 +1392,3 @@ const _jsonAlbums = '''
     }
 ]
 ''';
-final albums = (jsonDecode(_jsonAlbums) as List).map(
-  (e) => Album.fromJsonDB(e),
-);

@@ -3,78 +3,6 @@
 part of 'employee.dart';
 
 // **************************************************************************
-// FieldGenerator
-// **************************************************************************
-
-// ignore_for_file:
-
-class _EmployeeId extends IColumn<Employee> {
-  const _EmployeeId(
-    super.str, {
-    super.tableName,
-  });
-}
-
-class _EmployeeFirstName extends IColumn<Employee> {
-  const _EmployeeFirstName(
-    super.str, {
-    super.tableName,
-  });
-}
-
-class _EmployeeLastName extends IColumn<Employee> {
-  const _EmployeeLastName(
-    super.str, {
-    super.tableName,
-  });
-}
-
-class _EmployeeTitle extends IColumn<Employee> {
-  const _EmployeeTitle(
-    super.str, {
-    super.tableName,
-  });
-}
-
-class _EmployeeReportsTo extends IColumn<Employee> {
-  const _EmployeeReportsTo(
-    super.str, {
-    super.tableName,
-  });
-}
-
-class _EmployeeBirthDate extends IColumn<Employee> {
-  const _EmployeeBirthDate(
-    super.str, {
-    super.tableName,
-  });
-}
-
-class _EmployeeHireDate extends IColumn<Employee> {
-  const _EmployeeHireDate(
-    super.str, {
-    super.tableName,
-  });
-}
-
-class _EmployeeAddress extends IColumn<Employee> {
-  const _EmployeeAddress(
-    super.str, {
-    super.tableName,
-  });
-}
-
-Employee $EmployeeFromJsonDB(Map<String, dynamic> json) => Employee(
-    id: json['id'] as int? ?? 0,
-    firstName: json['firstName'] as String,
-    lastName: json['lastName'] as String,
-    title: json['title'] as String,
-    reportsTo: json['reportsTo'] as int?,
-    birthDate: json['birthDate'] as DateTime,
-    hireDate: json['hireDate'] as DateTime,
-    address: json['address'] as String);
-
-// **************************************************************************
 // ModelGenerator
 // **************************************************************************
 
@@ -214,3 +142,69 @@ extension EmployeeQuery on Employee {
           );
   static String get rawDropTable => ExtraQuery.instance.dropTable(name);
 }
+
+class _EmployeeId extends IColumn<Employee> {
+  const _EmployeeId(
+    super.str, {
+    super.tableName,
+  });
+}
+
+class _EmployeeFirstName extends IColumn<Employee> {
+  const _EmployeeFirstName(
+    super.str, {
+    super.tableName,
+  });
+}
+
+class _EmployeeLastName extends IColumn<Employee> {
+  const _EmployeeLastName(
+    super.str, {
+    super.tableName,
+  });
+}
+
+class _EmployeeTitle extends IColumn<Employee> {
+  const _EmployeeTitle(
+    super.str, {
+    super.tableName,
+  });
+}
+
+class _EmployeeReportsTo extends IColumn<Employee> {
+  const _EmployeeReportsTo(
+    super.str, {
+    super.tableName,
+  });
+}
+
+class _EmployeeBirthDate extends IColumn<Employee> {
+  const _EmployeeBirthDate(
+    super.str, {
+    super.tableName,
+  });
+}
+
+class _EmployeeHireDate extends IColumn<Employee> {
+  const _EmployeeHireDate(
+    super.str, {
+    super.tableName,
+  });
+}
+
+class _EmployeeAddress extends IColumn<Employee> {
+  const _EmployeeAddress(
+    super.str, {
+    super.tableName,
+  });
+}
+
+Employee $EmployeeFromJsonDB(Map<String, dynamic> json) => Employee(
+    id: json['id'] as int? ?? 0,
+    firstName: json['firstName'] as String,
+    lastName: json['lastName'] as String,
+    title: json['title'] as String,
+    reportsTo: json['reportsTo'] as int?,
+    birthDate: json['birthDate'] as DateTime,
+    hireDate: json['hireDate'] as DateTime,
+    address: json['address'] as String);

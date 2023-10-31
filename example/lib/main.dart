@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:math';
 
 import 'package:db_sql_query/db_sql_query.dart';
 import 'package:example/db.dart';
@@ -12,8 +11,6 @@ import 'package:example/db/init/media_types.dart';
 import 'package:example/db/init/playlist_tracks.dart';
 import 'package:example/db/init/playlists.dart';
 import 'package:example/db/init/tracks.dart';
-import 'package:example/dog.dart';
-import 'package:example/dog_category.dart';
 import 'package:example/models/album.dart';
 import 'package:example/models/artist.dart';
 import 'package:example/models/customer.dart';
@@ -34,7 +31,16 @@ void main() async {
   await runZonedGuarded<Future<void>>(
     () async {
       WidgetsFlutterBinding.ensureInitialized();
-      await configSql();
+      await configSql(
+        seeded: (db) {
+          ExtraQuery.instance.seeded(
+            AlbumQuery.name,
+            db,
+            parser: (e) => Album.fromJsonDB(e),
+            jsonStr: jsonAlbums,
+          );
+        },
+      );
       runApp(const MyApp());
     },
     (error, stack) {},
@@ -66,12 +72,9 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  List<Dog> _dogs = [];
+  List<Album> _albums = [];
 
-  void initChinookDB() async {
-    for (final i in albums) {
-      await i.insert();
-    }
+  Future<void> initChinookDB() async {
     for (final i in artists) {
       await i.insert();
     }
@@ -104,17 +107,31 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
-  void _loadDogs() async {
-    final dogs = await DogQuery.find();
+  Future<void> _loadAlbums() async {
+    final albums = await AlbumQuery.find();
     setState(() {
-      _dogs = dogs;
+      _albums = albums;
     });
   }
 
   @override
   void initState() {
     super.initState();
-    _loadDogs();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      showDialog(
+        context: context,
+        builder: (ctx) => const Material(
+          type: MaterialType.transparency,
+          child: Center(
+            child: CircularProgressIndicator(),
+          ),
+        ),
+      );
+      await initChinookDB();
+      await _loadAlbums();
+      // ignore: use_build_context_synchronously
+      Navigator.of(context).pop();
+    });
   }
 
   @override
@@ -126,16 +143,15 @@ class _MyHomePageState extends State<MyHomePage> {
       body: Center(
         child: ListView(
           children: <Widget>[
-            for (final dog in _dogs)
+            for (final album in _albums)
               Card(
                 child: GestureDetector(
                   onTap: () {
                     showDialog(
                         context: context,
                         builder: (ctx) {
-                          final nameCtl = TextEditingController(text: dog.name);
-                          final ageCtl =
-                              TextEditingController(text: dog.age.toString());
+                          final nameCtl =
+                              TextEditingController(text: album.title);
                           return Material(
                             type: MaterialType.transparency,
                             child: Center(
@@ -149,21 +165,16 @@ class _MyHomePageState extends State<MyHomePage> {
                                     TextFormField(
                                       controller: nameCtl,
                                     ),
-                                    TextFormField(
-                                      controller: ageCtl,
-                                      keyboardType: TextInputType.number,
-                                    ),
                                     TextButton(
                                       onPressed: () async {
-                                        await Dog(
-                                          id: dog.id,
-                                          name: nameCtl.text,
-                                          age: int.tryParse(ageCtl.text) ?? 0,
-                                          category: dog.category,
+                                        await Album(
+                                          id: album.id,
+                                          title: nameCtl.text,
+                                          artist: album.artist,
                                         ).update();
                                         // ignore: use_build_context_synchronously
                                         Navigator.of(context).pop();
-                                        _loadDogs();
+                                        _loadAlbums();
                                       },
                                       child: const Text('Update'),
                                     ),
@@ -178,14 +189,14 @@ class _MyHomePageState extends State<MyHomePage> {
                     children: [
                       Expanded(
                         child: Text(
-                          '${dog.id} ${dog.name} ${dog.age} ${dog.category}',
+                          '${album.id} ${album.title} ${album.artist?.name} ${album.artist?.id}',
                           style: Theme.of(context).textTheme.headlineMedium,
                         ),
                       ),
                       TextButton(
                         onPressed: () async {
-                          await dog.delete();
-                          _loadDogs();
+                          await album.delete();
+                          _loadAlbums();
                         },
                         child: const Text('Delete'),
                       ),
@@ -199,86 +210,86 @@ class _MyHomePageState extends State<MyHomePage> {
       bottomNavigationBar: BottomAppBar(
         child: Row(
           children: [
-            TextButton(
-              onPressed: () async {
-                await Future.wait([
-                  for (int i = 0; i < 5; i++)
-                    DogCategory(name: 'name $i').insert()
-                ]);
-              },
-              child: const Text('init cate'),
-            ),
-            TextButton(
-              onPressed: () async {
-                final dog = await DogQuery.findOne();
-                if (dog == null) return;
-                setState(() {
-                  _dogs = [dog];
-                });
-              },
-              child: const Text('Get One'),
-            ),
-            TextButton(
-              onPressed: () async {
-                final dogs = await DogQuery.rawQuery(
-                  parser: (e) => Dog.fromJsonDB(e),
-                  select: [
-                    DogQuery.dogId,
-                    DogQuery.dogAge,
-                    DogQuery.dogName,
-                    DogQuery.dogCategory,
-                    Rename<Dog, IColumn<Dog>>(Count(DogQuery.dogAge), 'count'),
-                  ],
-                  // where: [
-                  //   WhereValue(dogAge, 214),
-                  // ],
-                  oderByByHaving: [
-                    OrderByValue<Dog, IColumn<Dog>>(GetName('count')),
-                    // OrderByValue(dogAge),
-                    // OrderByValue(dogCategory),
-                  ],
-                  having: [
-                    BetweenValues<Dog, IColumn<Dog>>(GetName('count'), 0, 20),
-                  ],
-                  innerJoin: [
-                    InnerJoin(
-                      select: [
-                        DogCategoryQuery.dogCategoryName,
-                      ],
-                      where: [
-                        EqualValue<DogCategory, IColumn<DogCategory>,
-                            IColumn<Dog>>(
-                          DogCategoryQuery.dogCategoryId,
-                          DogQuery.dogCategory,
-                        ),
-                      ],
-                    )
-                  ],
-                  limit: 100,
-                  offset: 0,
-                  groupBy: [DogQuery.dogCategory],
-                );
-                setState(() {
-                  _dogs = dogs;
-                });
-              },
-              child: const Text('Query raw'),
-            ),
-            TextButton(
-              onPressed: () {
-                Dog(
-                  name: 'na' * (Random().nextInt(4) + 1).toInt() +
-                      'me' * (Random().nextInt(4) + 1).toInt(),
-                  age: (Random().nextInt(20) + 7).toInt(),
-                ).insert();
-              },
-              child: const Text('insert random'),
-            ),
+            // TextButton(
+            //   onPressed: () async {
+            //     await Future.wait([
+            //       for (int i = 0; i < 5; i++)
+            //         DogCategory(name: 'name $i').insert()
+            //     ]);
+            //   },
+            //   child: const Text('init cate'),
+            // ),
+            // TextButton(
+            //   onPressed: () async {
+            //     final dog = await DogQuery.findOne();
+            //     if (dog == null) return;
+            //     setState(() {
+            //       _dogs = [dog];
+            //     });
+            //   },
+            //   child: const Text('Get One'),
+            // ),
+            // TextButton(
+            //   onPressed: () async {
+            //     final dogs = await DogQuery.rawQuery(
+            //       parser: (e) => Dog.fromJsonDB(e),
+            //       select: [
+            //         DogQuery.dogId,
+            //         DogQuery.dogAge,
+            //         DogQuery.dogName,
+            //         DogQuery.dogCategory,
+            //         Rename<Dog, IColumn<Dog>>(Count(DogQuery.dogAge), 'count'),
+            //       ],
+            //       // where: [
+            //       //   WhereValue(dogAge, 214),
+            //       // ],
+            //       oderByByHaving: [
+            //         OrderByValue<Dog, IColumn<Dog>>(GetName('count')),
+            //         // OrderByValue(dogAge),
+            //         // OrderByValue(dogCategory),
+            //       ],
+            //       having: [
+            //         BetweenValues<Dog, IColumn<Dog>>(GetName('count'), 0, 20),
+            //       ],
+            //       innerJoin: [
+            //         InnerJoin(
+            //           select: [
+            //             DogCategoryQuery.dogCategoryName,
+            //           ],
+            //           where: [
+            //             EqualValue<DogCategory, IColumn<DogCategory>,
+            //                 IColumn<Dog>>(
+            //               DogCategoryQuery.dogCategoryId,
+            //               DogQuery.dogCategory,
+            //             ),
+            //           ],
+            //         )
+            //       ],
+            //       limit: 100,
+            //       offset: 0,
+            //       groupBy: [DogQuery.dogCategory],
+            //     );
+            //     setState(() {
+            //       _dogs = dogs;
+            //     });
+            //   },
+            //   child: const Text('Query raw'),
+            // ),
+            // TextButton(
+            //   onPressed: () {
+            //     Dog(
+            //       name: 'na' * (Random().nextInt(4) + 1).toInt() +
+            //           'me' * (Random().nextInt(4) + 1).toInt(),
+            //       age: (Random().nextInt(20) + 7).toInt(),
+            //     ).insert();
+            //   },
+            //   child: const Text('insert random'),
+            // ),
           ],
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: _loadDogs,
+        onPressed: _loadAlbums,
         tooltip: 'Increment',
         child: const Icon(Icons.add),
       ),

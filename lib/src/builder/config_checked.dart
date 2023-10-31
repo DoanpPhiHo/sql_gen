@@ -38,26 +38,32 @@ class ModelConfigGen {
   final List<String> imports;
   final String? primaryId;
   final String? primaryIdType;
+  final List<String> foreign;
 
-  ModelConfigGen(
-    this.name,
-    this.imports,
-    this.primaryId,
-    this.primaryIdType,
-  );
+  ModelConfigGen({
+    required this.name,
+    required this.imports,
+    required this.primaryId,
+    required this.primaryIdType,
+    required this.foreign,
+  });
 
   Map<String, dynamic> toMap() => {
         'name': name,
         'imports': imports,
         'primaryId': primaryId,
         'primaryIdType': primaryIdType,
+        'foreign': foreign,
       };
 
   factory ModelConfigGen.fromJson(Map<dynamic, dynamic> json) => ModelConfigGen(
-        json['name'] as String,
-        (json['imports'] as List).cast<String>(),
-        json['primaryId'] as String?,
-        json['primaryIdType'] as String?,
+        name: json['name'] as String,
+        imports: (json['imports'] as List).cast<String>(),
+        primaryId: json['primaryId'] as String?,
+        primaryIdType: json['primaryIdType'] as String?,
+        foreign: json['foreign'] != null
+            ? (json['foreign'] as List).cast<String>()
+            : [],
       );
 
   static Future<ModelConfigGen> fromLibs(
@@ -67,10 +73,13 @@ class ModelConfigGen {
     final ClassGBuilder gBuilder =
         await ClassGBuilder.fromElement(cl, null, null);
     return ModelConfigGen(
-      cl.displayName,
-      s.map((e) => e.identifier).toList(),
-      gBuilder.primaryKey?.fieldName,
-      gBuilder.primaryKey?.dartType.toString(),
+      name: cl.displayName,
+      imports: s.map((e) => e.identifier).toList(),
+      primaryId: gBuilder.primaryKey?.fieldName,
+      primaryIdType: gBuilder.primaryKey?.dartType.toString(),
+      foreign: [
+        for (final s in gBuilder.all) s.flutterType,
+      ],
     );
   }
 }

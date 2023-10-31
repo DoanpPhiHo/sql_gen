@@ -18,62 +18,6 @@ String? $toJsonSex(Sex? value) {
 }
 
 // **************************************************************************
-// FieldGenerator
-// **************************************************************************
-
-// ignore_for_file:
-
-class _ExampleModelId extends IColumn<ExampleModel> {
-  const _ExampleModelId(
-    super.str, {
-    super.tableName,
-  });
-}
-
-class _ExampleModelName extends IColumn<ExampleModel> {
-  const _ExampleModelName(
-    super.str, {
-    super.tableName,
-  });
-}
-
-class _ExampleModelPassportId extends IColumn<ExampleModel> {
-  const _ExampleModelPassportId(
-    super.str, {
-    super.tableName,
-  });
-}
-
-class _ExampleModelAge extends IColumn<ExampleModel> {
-  const _ExampleModelAge(
-    super.str, {
-    super.tableName,
-  });
-}
-
-class _ExampleModelRegion extends IColumn<ExampleModel> {
-  const _ExampleModelRegion(
-    super.str, {
-    super.tableName,
-  });
-}
-
-class _ExampleModelSex extends IColumn<ExampleModel> {
-  const _ExampleModelSex(
-    super.str, {
-    super.tableName,
-  });
-}
-
-ExampleModel $ExampleModelFromJsonDB(Map<String, dynamic> json) => ExampleModel(
-    id: json['id'] as int,
-    name: json['name'] as String,
-    passportId: json['passportId'] as String,
-    age: json['age'] as int? ?? 10,
-    region: json['region'] as int?,
-    sex: $fromJsonSex(json['sex']));
-
-// **************************************************************************
 // ModelGenerator
 // **************************************************************************
 
@@ -195,3 +139,53 @@ extension ExampleModelQuery on ExampleModel {
           );
   static String get rawDropTable => ExtraQuery.instance.dropTable(name);
 }
+
+class _ExampleModelId extends IColumn<ExampleModel> {
+  const _ExampleModelId(
+    super.str, {
+    super.tableName,
+  });
+}
+
+class _ExampleModelName extends IColumn<ExampleModel> {
+  const _ExampleModelName(
+    super.str, {
+    super.tableName,
+  });
+}
+
+class _ExampleModelPassportId extends IColumn<ExampleModel> {
+  const _ExampleModelPassportId(
+    super.str, {
+    super.tableName,
+  });
+}
+
+class _ExampleModelAge extends IColumn<ExampleModel> {
+  const _ExampleModelAge(
+    super.str, {
+    super.tableName,
+  });
+}
+
+class _ExampleModelRegion extends IColumn<ExampleModel> {
+  const _ExampleModelRegion(
+    super.str, {
+    super.tableName,
+  });
+}
+
+class _ExampleModelSex extends IColumn<ExampleModel> {
+  const _ExampleModelSex(
+    super.str, {
+    super.tableName,
+  });
+}
+
+ExampleModel $ExampleModelFromJsonDB(Map<String, dynamic> json) => ExampleModel(
+    id: json['id'] as int,
+    name: json['name'] as String,
+    passportId: json['passportId'] as String,
+    age: json['age'] as int? ?? 10,
+    region: json['region'] as int?,
+    sex: $fromJsonSex(json['sex']));

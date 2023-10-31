@@ -1,10 +1,11 @@
 import 'package:db_sql_query/db_sql_query.dart';
 
+import '../db/init/albums.dart';
 import 'artist.dart';
 
 part 'album.g.dart';
 
-@ModelSql()
+@ModelSql(seeded: {'jsonAlbums': jsonAlbums})
 class Album extends ITable {
   @primaryKeyAuto
   final int id;

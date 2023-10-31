@@ -3,92 +3,6 @@
 part of 'track.dart';
 
 // **************************************************************************
-// FieldGenerator
-// **************************************************************************
-
-// ignore_for_file:
-
-class _TrackId extends IColumn<Track> {
-  const _TrackId(
-    super.str, {
-    super.tableName,
-  });
-}
-
-class _TrackName extends IColumn<Track> {
-  const _TrackName(
-    super.str, {
-    super.tableName,
-  });
-}
-
-class _TrackComposer extends IColumn<Track> {
-  const _TrackComposer(
-    super.str, {
-    super.tableName,
-  });
-}
-
-class _TrackMilliseconds extends IColumn<Track> {
-  const _TrackMilliseconds(
-    super.str, {
-    super.tableName,
-  });
-}
-
-class _TrackBites extends IColumn<Track> {
-  const _TrackBites(
-    super.str, {
-    super.tableName,
-  });
-}
-
-class _TrackUnitPrice extends IColumn<Track> {
-  const _TrackUnitPrice(
-    super.str, {
-    super.tableName,
-  });
-}
-
-class _TrackAlbum extends IColumn<Track> {
-  const _TrackAlbum(
-    super.str, {
-    super.tableName,
-  });
-}
-
-class _TrackMediaType extends IColumn<Track> {
-  const _TrackMediaType(
-    super.str, {
-    super.tableName,
-  });
-}
-
-class _TrackGenres extends IColumn<Track> {
-  const _TrackGenres(
-    super.str, {
-    super.tableName,
-  });
-}
-
-Track $TrackFromJsonDB(Map<String, dynamic> json) => Track(
-    id: json['id'] as int? ?? 0,
-    name: json['name'] as String,
-    composer: json['composer'] as String?,
-    milliseconds: json['milliseconds'] as int,
-    bites: json['bites'] as int,
-    unitPrice: json['unitPrice'] as int,
-    album: json['album'] != null
-        ? Album.fromJsonDB(json['album'] as Map<String, dynamic>)
-        : null,
-    mediaType: json['mediaType'] != null
-        ? MediaType.fromJsonDB(json['mediaType'] as Map<String, dynamic>)
-        : null,
-    genres: json['genres'] != null
-        ? Genres.fromJsonDB(json['genres'] as Map<String, dynamic>)
-        : null);
-
-// **************************************************************************
 // ModelGenerator
 // **************************************************************************
 
@@ -141,12 +55,12 @@ extension TrackQuery on Track {
           'milliseconds INTEGER',
           'bites INTEGER',
           'unitPrice INTEGER',
-          'albumId int NOT NULL',
-          'mediaTypeId int NOT NULL',
-          'genresId int NOT NULL',
-          'FOREIGN KEY (albumId) REFERENCES album (id)',
-          'FOREIGN KEY (mediaTypeId) REFERENCES mediaType (id)',
-          'FOREIGN KEY (genresId) REFERENCES genres (id)'
+          'albumId INTEGER NOT NULL',
+          'mediaTypeId INTEGER NOT NULL',
+          'genresId INTEGER NOT NULL',
+          'FOREIGN KEY (albumId) REFERENCES album (id) ON DELETE NO ACTION ON UPDATE NO ACTION',
+          'FOREIGN KEY (mediaTypeId) REFERENCES mediaType (id) ON DELETE NO ACTION ON UPDATE NO ACTION',
+          'FOREIGN KEY (genresId) REFERENCES genres (id) ON DELETE NO ACTION ON UPDATE NO ACTION'
         ],
       );
   static String get name => 'track';
@@ -237,3 +151,83 @@ extension TrackQuery on Track {
           );
   static String get rawDropTable => ExtraQuery.instance.dropTable(name);
 }
+
+class _TrackId extends IColumn<Track> {
+  const _TrackId(
+    super.str, {
+    super.tableName,
+  });
+}
+
+class _TrackName extends IColumn<Track> {
+  const _TrackName(
+    super.str, {
+    super.tableName,
+  });
+}
+
+class _TrackComposer extends IColumn<Track> {
+  const _TrackComposer(
+    super.str, {
+    super.tableName,
+  });
+}
+
+class _TrackMilliseconds extends IColumn<Track> {
+  const _TrackMilliseconds(
+    super.str, {
+    super.tableName,
+  });
+}
+
+class _TrackBites extends IColumn<Track> {
+  const _TrackBites(
+    super.str, {
+    super.tableName,
+  });
+}
+
+class _TrackUnitPrice extends IColumn<Track> {
+  const _TrackUnitPrice(
+    super.str, {
+    super.tableName,
+  });
+}
+
+class _TrackAlbum extends IColumn<Track> {
+  const _TrackAlbum(
+    super.str, {
+    super.tableName,
+  });
+}
+
+class _TrackMediaType extends IColumn<Track> {
+  const _TrackMediaType(
+    super.str, {
+    super.tableName,
+  });
+}
+
+class _TrackGenres extends IColumn<Track> {
+  const _TrackGenres(
+    super.str, {
+    super.tableName,
+  });
+}
+
+Track $TrackFromJsonDB(Map<String, dynamic> json) => Track(
+    id: json['id'] as int? ?? 0,
+    name: json['name'] as String,
+    composer: json['composer'] as String?,
+    milliseconds: json['milliseconds'] as int,
+    bites: json['bites'] as int,
+    unitPrice: json['unitPrice'] as int,
+    album: json['album'] != null
+        ? Album.fromJsonDB(json['album'] as Map<String, dynamic>)
+        : null,
+    mediaType: json['mediaType'] != null
+        ? MediaType.fromJsonDB(json['mediaType'] as Map<String, dynamic>)
+        : null,
+    genres: json['genres'] != null
+        ? Genres.fromJsonDB(json['genres'] as Map<String, dynamic>)
+        : null);

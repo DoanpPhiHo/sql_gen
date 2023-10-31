@@ -36,24 +36,25 @@ import 'package:example/example.dart';
 
 import 'package:example/dog.dart';
 
-Future<void> $configSql() => ConfigSqflite.instance.configSqflite(
+Future<void> $configSql({void Function(Database)? seeded}) =>
+    ConfigSqflite.instance.configSqflite(
       'doggie_database.db',
       raws: [
         'PRAGMA foreign_keys = ON;',
         DogCategoryQuery.rawCreate,
-        InvoiceItemQuery.rawCreate,
-        InvoiceQuery.rawCreate,
         CustomerQuery.rawCreate,
-        AlbumQuery.rawCreate,
-        TrackQuery.rawCreate,
-        PlaylistTrackQuery.rawCreate,
         ArtistQuery.rawCreate,
         PlaylistQuery.rawCreate,
         MediaTypeQuery.rawCreate,
         EmployeeQuery.rawCreate,
         GenresQuery.rawCreate,
         ExampleModelQuery.rawCreate,
-        DogQuery.rawCreate
+        InvoiceQuery.rawCreate,
+        AlbumQuery.rawCreate,
+        TrackQuery.rawCreate,
+        PlaylistTrackQuery.rawCreate,
+        DogQuery.rawCreate,
+        InvoiceItemQuery.rawCreate
       ],
       version: 2,
     );

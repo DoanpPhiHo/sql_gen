@@ -26,7 +26,7 @@ class Customer extends ITable {
   final String? phone;
   @column
   final String? fax;
-  @column
+  @index
   final String email;
   // employeeId
   @ForeignKey(name: 'supportRepId')

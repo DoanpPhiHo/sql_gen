@@ -17,13 +17,38 @@ extension DartTypeX on DartType {
     final cl = configs.firstWhereOrNull(
       (e) => e.name == toString().removeQuestion,
     );
-    switch (cl?.primaryIdType) {
+    switch (cl?.primaryIdType?.removeQuestion) {
       case 'int':
         return TypeSql.integer;
       case 'String':
         return TypeSql.string;
     }
-    print('Data type is not supported yet: ${toString()}');
+    if (configs.isNotEmpty) {
+      final s = configs.map((e) => e.name).join(',');
+      print('Data type is not supported yet: ${toString()} from configs: $s');
+    }
+    return TypeSql.text;
+  }
+}
+
+extension StringZ on String? {
+  TypeSql? get sqlType {
+    if (this == null) return TypeSql.text;
+    switch (this!.removeQuestion) {
+      case 'int':
+        return TypeSql.integer;
+      case 'double':
+        return TypeSql.double;
+      case 'bool':
+        return TypeSql.bool;
+      case 'list':
+        return TypeSql.list;
+      case 'Map':
+        return TypeSql.map;
+      case 'String':
+        return TypeSql.string;
+    }
+    print('Data type is not supported yet: $this');
     return TypeSql.text;
   }
 }

@@ -1,18 +1,23 @@
 import 'package:db_sql_query/db_sql_query.dart';
+import 'package:example/models/playlist.dart';
+import 'package:example/models/track.dart';
 
 part 'playlist_track.g.dart';
 
 @ModelSql()
 class PlaylistTrack extends ITable {
-  @primaryKeyAuto
-  final int playlistId;
-  // TODO(hodoan): multy key to primary
+  @IDMulti(name: 'playlistId')
+  final Playlist playlist;
+  @IDMulti(name: 'trackId')
+  final Track track;
+
   @index
-  final int trackId;
+  final String? content;
 
   PlaylistTrack({
-    this.playlistId = 0,
-    required this.trackId,
+    required this.playlist,
+    required this.track,
+    this.content,
   });
 
   factory PlaylistTrack.fromJsonDB(Map<String, dynamic> json) =>

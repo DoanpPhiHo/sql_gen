@@ -3,29 +3,6 @@
 part of 'artist.dart';
 
 // **************************************************************************
-// FieldGenerator
-// **************************************************************************
-
-// ignore_for_file:
-
-class _ArtistId extends IColumn<Artist> {
-  const _ArtistId(
-    super.str, {
-    super.tableName,
-  });
-}
-
-class _ArtistName extends IColumn<Artist> {
-  const _ArtistName(
-    super.str, {
-    super.tableName,
-  });
-}
-
-Artist $ArtistFromJsonDB(Map<String, dynamic> json) =>
-    Artist(id: json['id'] as int? ?? 0, name: json['name'] as String);
-
-// **************************************************************************
 // ModelGenerator
 // **************************************************************************
 
@@ -112,3 +89,20 @@ extension ArtistQuery on Artist {
           );
   static String get rawDropTable => ExtraQuery.instance.dropTable(name);
 }
+
+class _ArtistId extends IColumn<Artist> {
+  const _ArtistId(
+    super.str, {
+    super.tableName,
+  });
+}
+
+class _ArtistName extends IColumn<Artist> {
+  const _ArtistName(
+    super.str, {
+    super.tableName,
+  });
+}
+
+Artist $ArtistFromJsonDB(Map<String, dynamic> json) =>
+    Artist(id: json['id'] as int? ?? 0, name: json['name'] as String);

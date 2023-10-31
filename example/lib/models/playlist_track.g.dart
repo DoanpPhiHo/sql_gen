@@ -3,73 +3,35 @@
 part of 'playlist_track.dart';
 
 // **************************************************************************
-// FieldGenerator
-// **************************************************************************
-
-// ignore_for_file:
-
-class _PlaylistTrackPlaylistId extends IColumn<PlaylistTrack> {
-  const _PlaylistTrackPlaylistId(
-    super.str, {
-    super.tableName,
-  });
-}
-
-class _PlaylistTrackTrackId extends IColumn<PlaylistTrack> {
-  const _PlaylistTrackTrackId(
-    super.str, {
-    super.tableName,
-  });
-}
-
-PlaylistTrack $PlaylistTrackFromJsonDB(Map<String, dynamic> json) =>
-    PlaylistTrack(
-        playlistId: json['playlistId'] as int? ?? 0,
-        trackId: json['trackId'] as int);
-
-// **************************************************************************
 // ModelGenerator
 // **************************************************************************
 
 // ignore_for_file:
 
 extension PlaylistTrackQuery on PlaylistTrack {
-  static const IColumn<PlaylistTrack> playlistTrackPlaylistId =
-      _PlaylistTrackPlaylistId('playlistId', tableName: 'playlist_track');
+  static const IColumn<PlaylistTrack> playlistTrackContent =
+      _PlaylistTrackContent('content', tableName: 'playlist_track');
 
-  static const IColumn<PlaylistTrack> playlistTrackTrackId =
-      _PlaylistTrackTrackId('trackId', tableName: 'playlist_track');
+  static const IColumn<PlaylistTrack> playlistTrackPlaylist =
+      _PlaylistTrackPlaylist('playlistId', tableName: 'playlist_track');
+
+  static const IColumn<PlaylistTrack> playlistTrackTrack =
+      _PlaylistTrackTrack('trackId', tableName: 'playlist_track');
 
   Map<String, dynamic> toMapFromDB() =>
-      {'playlistId': playlistId, 'trackId': trackId};
+      {'content': content, 'playlistId': playlist.id, 'trackId': track.id};
   static String get rawCreate => ExtraQuery.instance.createTable(
         name,
         fields: [
-          'playlistId INTEGER  PRIMARY KEY AUTOINCREMENT',
-          'trackId INTEGER'
+          'content TEXT NOT NULL',
+          'playlistId INTEGER',
+          'trackId INTEGER',
+          'FOREIGN KEY (playlistId) REFERENCES playlist (id) ON DELETE NO ACTION ON UPDATE NO ACTION',
+          'FOREIGN KEY (trackId) REFERENCES track (id) ON DELETE NO ACTION ON UPDATE NO ACTION',
+          'PRIMARY KEY (playlistId, trackId)'
         ],
       );
   static String get name => 'playlist_track';
-  Future<void> delete() =>
-      ExtraQuery.instance.delete<int, PlaylistTrack, IColumn<PlaylistTrack>>(
-        name,
-        ConfigSqflite.instance.database,
-        IdValue(playlistTrackPlaylistId, playlistId),
-      );
-  Future<void> update() =>
-      ExtraQuery.instance.update<int, PlaylistTrack, IColumn<PlaylistTrack>>(
-        name,
-        ConfigSqflite.instance.database,
-        map: toMapFromDB(),
-        IdValue(playlistTrackPlaylistId, playlistId),
-      );
-  static Future<PlaylistTrack?> findOneById(int id) => ExtraQuery.instance
-          .findOneById<int, PlaylistTrack, IColumn<PlaylistTrack>>(
-        name,
-        ConfigSqflite.instance.database,
-        IdValue(playlistTrackPlaylistId, id),
-        parser: (e) => PlaylistTrack.fromJsonDB(e),
-      );
   static Future<PlaylistTrack?> findOne() =>
       ExtraQuery.instance.findOne<PlaylistTrack>(
         name,
@@ -85,8 +47,7 @@ extension PlaylistTrackQuery on PlaylistTrack {
   Future<void> insert() => ExtraQuery.instance.insert(
         name,
         ConfigSqflite.instance.database,
-        fields: [PlaylistTrackQuery.playlistTrackTrackId.str],
-        values: [trackId],
+        map: toMapFromDB(),
       );
   static Future<List<E>>
       rawQuery<E, T extends IColumn<PlaylistTrack>, F, TF extends IColumn<F>>({
@@ -121,3 +82,30 @@ extension PlaylistTrackQuery on PlaylistTrack {
           );
   static String get rawDropTable => ExtraQuery.instance.dropTable(name);
 }
+
+class _PlaylistTrackContent extends IColumn<PlaylistTrack> {
+  const _PlaylistTrackContent(
+    super.str, {
+    super.tableName,
+  });
+}
+
+class _PlaylistTrackPlaylist extends IColumn<PlaylistTrack> {
+  const _PlaylistTrackPlaylist(
+    super.str, {
+    super.tableName,
+  });
+}
+
+class _PlaylistTrackTrack extends IColumn<PlaylistTrack> {
+  const _PlaylistTrackTrack(
+    super.str, {
+    super.tableName,
+  });
+}
+
+PlaylistTrack $PlaylistTrackFromJsonDB(Map<String, dynamic> json) =>
+    PlaylistTrack(
+        content: json['content'] as String?,
+        playlist: Playlist.fromJsonDB(json['playlist'] as Map<String, dynamic>),
+        track: Track.fromJsonDB(json['track'] as Map<String, dynamic>));

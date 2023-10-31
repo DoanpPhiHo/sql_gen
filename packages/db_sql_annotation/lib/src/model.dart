@@ -14,14 +14,9 @@ class SqlConfig {
 }
 
 class ModelSql {
-  const ModelSql({
-    this.name,
-    this.classQuery,
-    this.db,
-  });
+  const ModelSql({this.name, this.seeded});
   final String? name;
-  final String? classQuery;
-  final String? db;
+  final Map<String, String>? seeded;
 }
 
 const modelSql = ModelSql();
@@ -78,15 +73,25 @@ extension ForeignActionX on ForeignAction {
 class ForeignKey extends Property {
   const ForeignKey({
     required super.name,
-    this.onDelete,
-    this.onUpdate,
+    this.onDelete = ForeignAction.noAction,
+    this.onUpdate = ForeignAction.noAction,
   });
-  final ForeignAction? onDelete;
-  final ForeignAction? onUpdate;
+  final ForeignAction onDelete;
+  final ForeignAction onUpdate;
 }
 
 class IDAuto extends Property {
   const IDAuto({super.name});
+}
+
+class IDMulti extends Property {
+  const IDMulti({
+    required super.name,
+    this.onDelete = ForeignAction.noAction,
+    this.onUpdate = ForeignAction.noAction,
+  });
+  final ForeignAction onDelete;
+  final ForeignAction onUpdate;
 }
 
 class TColumn<T> extends Property {
@@ -108,3 +113,4 @@ const primaryKeyAuto = IDAuto();
 const column = TColumn(null);
 const index = TIndex();
 const enumerated = Enumerated(null);
+// const foreignKey = ForeignKey(name: null);

@@ -3,88 +3,6 @@
 part of 'invoice.dart';
 
 // **************************************************************************
-// FieldGenerator
-// **************************************************************************
-
-// ignore_for_file:
-
-class _InvoiceId extends IColumn<Invoice> {
-  const _InvoiceId(
-    super.str, {
-    super.tableName,
-  });
-}
-
-class _InvoiceInvoiceDate extends IColumn<Invoice> {
-  const _InvoiceInvoiceDate(
-    super.str, {
-    super.tableName,
-  });
-}
-
-class _InvoiceBillingAddress extends IColumn<Invoice> {
-  const _InvoiceBillingAddress(
-    super.str, {
-    super.tableName,
-  });
-}
-
-class _InvoiceBillingState extends IColumn<Invoice> {
-  const _InvoiceBillingState(
-    super.str, {
-    super.tableName,
-  });
-}
-
-class _InvoiceBillingPostalCode extends IColumn<Invoice> {
-  const _InvoiceBillingPostalCode(
-    super.str, {
-    super.tableName,
-  });
-}
-
-class _InvoiceBillingCountry extends IColumn<Invoice> {
-  const _InvoiceBillingCountry(
-    super.str, {
-    super.tableName,
-  });
-}
-
-class _InvoiceBillingCity extends IColumn<Invoice> {
-  const _InvoiceBillingCity(
-    super.str, {
-    super.tableName,
-  });
-}
-
-class _InvoiceTotal extends IColumn<Invoice> {
-  const _InvoiceTotal(
-    super.str, {
-    super.tableName,
-  });
-}
-
-class _InvoiceCustomer extends IColumn<Invoice> {
-  const _InvoiceCustomer(
-    super.str, {
-    super.tableName,
-  });
-}
-
-Invoice $InvoiceFromJsonDB(Map<String, dynamic> json) => Invoice(
-    id: json['id'] as int? ?? 0,
-    invoiceDate: json['invoiceDate'] as int,
-    billingAddress: json['billingAddress'] as String,
-    billingState: json['billingState'] as String?,
-    billingPostalCode: json['billingPostalCode'] as String?,
-    billingCountry: json['billingCountry'] as String,
-    billingCity: json['billingCity'] as String,
-    total: json['total'] as double,
-    customer: json['customer'] != null
-        ? Customer.fromJsonDB(json['customer'] as Map<String, dynamic>)
-        : null);
-
-// **************************************************************************
 // ModelGenerator
 // **************************************************************************
 
@@ -132,16 +50,16 @@ extension InvoiceQuery on Invoice {
   static String get rawCreate => ExtraQuery.instance.createTable(
         name,
         fields: [
-          'id INTEGER  PRIMARY KEY AUTOINCREMENT',
-          'invoiceDate INTEGER',
-          'billingAddress TEXT',
-          'billingState TEXT NOT NULL',
-          'billingPostalCode TEXT NOT NULL',
-          'billingCountry TEXT',
-          'billingCity TEXT',
-          'total REAL',
-          'customerId int NOT NULL',
-          'FOREIGN KEY (customerId) REFERENCES customer (id)'
+          'id INTEGER  PRIMARY KEY AUTOINCREMENT NOT NULL',
+          'invoiceDate INTEGER NOT NULL',
+          'billingAddress TEXT NOT NULL',
+          'billingState TEXT',
+          'billingPostalCode TEXT',
+          'billingCountry TEXT NOT NULL',
+          'billingCity TEXT NOT NULL',
+          'total REAL NOT NULL',
+          'customerId INTEGER',
+          'FOREIGN KEY (customerId) REFERENCES customer (id) ON DELETE NO ACTION ON UPDATE NO ACTION'
         ],
       );
   static String get name => 'invoice';
@@ -232,3 +150,79 @@ extension InvoiceQuery on Invoice {
           );
   static String get rawDropTable => ExtraQuery.instance.dropTable(name);
 }
+
+class _InvoiceId extends IColumn<Invoice> {
+  const _InvoiceId(
+    super.str, {
+    super.tableName,
+  });
+}
+
+class _InvoiceInvoiceDate extends IColumn<Invoice> {
+  const _InvoiceInvoiceDate(
+    super.str, {
+    super.tableName,
+  });
+}
+
+class _InvoiceBillingAddress extends IColumn<Invoice> {
+  const _InvoiceBillingAddress(
+    super.str, {
+    super.tableName,
+  });
+}
+
+class _InvoiceBillingState extends IColumn<Invoice> {
+  const _InvoiceBillingState(
+    super.str, {
+    super.tableName,
+  });
+}
+
+class _InvoiceBillingPostalCode extends IColumn<Invoice> {
+  const _InvoiceBillingPostalCode(
+    super.str, {
+    super.tableName,
+  });
+}
+
+class _InvoiceBillingCountry extends IColumn<Invoice> {
+  const _InvoiceBillingCountry(
+    super.str, {
+    super.tableName,
+  });
+}
+
+class _InvoiceBillingCity extends IColumn<Invoice> {
+  const _InvoiceBillingCity(
+    super.str, {
+    super.tableName,
+  });
+}
+
+class _InvoiceTotal extends IColumn<Invoice> {
+  const _InvoiceTotal(
+    super.str, {
+    super.tableName,
+  });
+}
+
+class _InvoiceCustomer extends IColumn<Invoice> {
+  const _InvoiceCustomer(
+    super.str, {
+    super.tableName,
+  });
+}
+
+Invoice $InvoiceFromJsonDB(Map<String, dynamic> json) => Invoice(
+    id: json['id'] as int? ?? 0,
+    invoiceDate: json['invoiceDate'] as int,
+    billingAddress: json['billingAddress'] as String,
+    billingState: json['billingState'] as String?,
+    billingPostalCode: json['billingPostalCode'] as String?,
+    billingCountry: json['billingCountry'] as String,
+    billingCity: json['billingCity'] as String,
+    total: json['total'] as double,
+    customer: json['customer'] != null
+        ? Customer.fromJsonDB(json['customer'] as Map<String, dynamic>)
+        : null);

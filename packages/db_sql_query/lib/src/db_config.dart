@@ -7,8 +7,7 @@ class ConfigSqflite {
   Future<void> configSqflite(
     String dbName, {
     required List<String> raws,
-    List<String> rawForeign = const [],
-    List<String> seeded = const [],
+    void Function(Database)? seeded,
     int version = -1,
   }) async {
     database = openDatabase(
@@ -20,7 +19,9 @@ class ConfigSqflite {
       },
       onDowngrade: (db, oldVersion, newVersion) {},
       onConfigure: (db) {},
-      onOpen: (db) {},
+      onOpen: (db) {
+        seeded?.call(db);
+      },
       onUpgrade: (db, oldVersion, newVersion) {},
       version: version,
     );

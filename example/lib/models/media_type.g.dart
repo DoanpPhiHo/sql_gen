@@ -3,29 +3,6 @@
 part of 'media_type.dart';
 
 // **************************************************************************
-// FieldGenerator
-// **************************************************************************
-
-// ignore_for_file:
-
-class _MediaTypeId extends IColumn<MediaType> {
-  const _MediaTypeId(
-    super.str, {
-    super.tableName,
-  });
-}
-
-class _MediaTypeName extends IColumn<MediaType> {
-  const _MediaTypeName(
-    super.str, {
-    super.tableName,
-  });
-}
-
-MediaType $MediaTypeFromJsonDB(Map<String, dynamic> json) =>
-    MediaType(id: json['id'] as int? ?? 0, name: json['name'] as String);
-
-// **************************************************************************
 // ModelGenerator
 // **************************************************************************
 
@@ -113,3 +90,20 @@ extension MediaTypeQuery on MediaType {
           );
   static String get rawDropTable => ExtraQuery.instance.dropTable(name);
 }
+
+class _MediaTypeId extends IColumn<MediaType> {
+  const _MediaTypeId(
+    super.str, {
+    super.tableName,
+  });
+}
+
+class _MediaTypeName extends IColumn<MediaType> {
+  const _MediaTypeName(
+    super.str, {
+    super.tableName,
+  });
+}
+
+MediaType $MediaTypeFromJsonDB(Map<String, dynamic> json) =>
+    MediaType(id: json['id'] as int? ?? 0, name: json['name'] as String);

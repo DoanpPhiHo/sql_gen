@@ -1,8 +1,6 @@
 targets:
   $default:
     builders:
-      field_builder:
-        enabled: true
       model_builder:
         enabled: true
       enum_builder:
@@ -13,14 +11,6 @@ targets:
         enabled: true
 
 builders:
-  field_builder:
-    import: "package:db_sql_generator/builder.dart"
-    builder_factories: ["fieldBuilder"]
-    runs_before: ["db_sql_generator|model_builder"]
-    build_extensions: { ".dart": [".field_builder.g.part"] }
-    auto_apply: dependents
-    build_to: cache
-    applies_builders: ["source_gen|combining_builder"]
   model_builder:
     import: "package:db_sql_generator/builder.dart"
     builder_factories: ["modelBuilder"]
@@ -45,7 +35,7 @@ builders:
   checked_db_builder:
     import: "package:db_sql_generator/builder.dart"
     builder_factories: ["checkedBuilder"]
-    runs_before: ["db_sql_generator|config_builder","db_sql_generator|field_builder","db_sql_generator|model_builder"]
+    runs_before: ["db_sql_generator|config_builder","db_sql_generator|model_builder"]
     build_extensions: { ".dart": [".sql_model.json"] }
     auto_apply: dependents
     build_to: cache

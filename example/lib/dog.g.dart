@@ -3,48 +3,6 @@
 part of 'dog.dart';
 
 // **************************************************************************
-// FieldGenerator
-// **************************************************************************
-
-// ignore_for_file:
-
-class _DogId extends IColumn<Dog> {
-  const _DogId(
-    super.str, {
-    super.tableName,
-  });
-}
-
-class _DogName extends IColumn<Dog> {
-  const _DogName(
-    super.str, {
-    super.tableName,
-  });
-}
-
-class _DogAge extends IColumn<Dog> {
-  const _DogAge(
-    super.str, {
-    super.tableName,
-  });
-}
-
-class _DogCategory extends IColumn<Dog> {
-  const _DogCategory(
-    super.str, {
-    super.tableName,
-  });
-}
-
-Dog $DogFromJsonDB(Map<String, dynamic> json) => Dog(
-    id: json['id'] as int? ?? 0,
-    name: json['name'] as String,
-    age: json['age'] as int?,
-    category: json['category'] != null
-        ? DogCategory.fromJsonDB(json['category'] as Map<String, dynamic>)
-        : null);
-
-// **************************************************************************
 // ModelGenerator
 // **************************************************************************
 
@@ -68,8 +26,8 @@ extension DogQuery on Dog {
           'id INTEGER  PRIMARY KEY AUTOINCREMENT',
           'name TEXT',
           'age INTEGER NOT NULL',
-          'categoryId int NOT NULL',
-          'FOREIGN KEY (categoryId) REFERENCES category (id)'
+          'categoryId INTEGER NOT NULL',
+          'FOREIGN KEY (categoryId) REFERENCES category (id) ON DELETE NO ACTION ON UPDATE NO ACTION'
         ],
       );
   static String get name => 'dog';
@@ -144,3 +102,39 @@ extension DogQuery on Dog {
           );
   static String get rawDropTable => ExtraQuery.instance.dropTable(name);
 }
+
+class _DogId extends IColumn<Dog> {
+  const _DogId(
+    super.str, {
+    super.tableName,
+  });
+}
+
+class _DogName extends IColumn<Dog> {
+  const _DogName(
+    super.str, {
+    super.tableName,
+  });
+}
+
+class _DogAge extends IColumn<Dog> {
+  const _DogAge(
+    super.str, {
+    super.tableName,
+  });
+}
+
+class _DogCategory extends IColumn<Dog> {
+  const _DogCategory(
+    super.str, {
+    super.tableName,
+  });
+}
+
+Dog $DogFromJsonDB(Map<String, dynamic> json) => Dog(
+    id: json['id'] as int? ?? 0,
+    name: json['name'] as String,
+    age: json['age'] as int?,
+    category: json['category'] != null
+        ? DogCategory.fromJsonDB(json['category'] as Map<String, dynamic>)
+        : null);

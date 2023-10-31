@@ -173,6 +173,22 @@ class ExtraQuery {
     return lst.map((e) => parser(e)).toList();
   }
 
+  Future<void> seeded<E>(
+    String table,
+    Database db, {
+    required ValueParser<E> parser,
+    required String jsonStr,
+  }) async {
+    final lst = await db.query(table);
+    if (lst.isNotEmpty) return;
+    final models = (jsonDecode(jsonStr) as List);
+
+    for (final model in models) {
+      await db.insert(table, model);
+    }
+    return;
+  }
+
   Future<List<E>>
       rawQuery<E, G, T extends IColumn<G>, F, TF extends IColumn<F>>(
     String table,
